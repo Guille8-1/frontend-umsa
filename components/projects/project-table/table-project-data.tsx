@@ -39,24 +39,50 @@ export default function TableProject({ user }: { user: User }) {
                 const projectId = selectedIndex?.id ?? 0;
                 const prjComents = await getCommentById(projectId);
                 setProjectComment(prjComents);
+                setSelectedIndex(selectedIndex)
+                console.log('control this fn')
             }
             projectResources(user.id).then();
         };
         dispatch(resetStatus());
-        console.log('testing this from the modal and from the table');
     }, [user.id, reFetch, selectedIndex, dispatch, projectid]);
 
     const columns = getColumns(setSelectedIndex)
 
+    const currentIndex = selectedIndex ? projects.findIndex(prj => prj.id === projectid): -1
+
+    const goNext = () => {
+        if(currentIndex === -1)
+            return
+        if(currentIndex > 0){
+            setSelectedIndex(projects[currentIndex + 1])
+        }
+    }
+
+    const goPrevious = () => {
+        if(currentIndex === -1)
+            return
+        if(currentIndex > 0){
+            setSelectedIndex(projects[currentIndex - 1])
+        }
+    }
+
     return (
         <>
             <div className="mb-5">
-                <DataTable columns={columns} data={projects}></DataTable>
+                <DataTable 
+                    columns={columns} 
+                    data={projects}
+                    selectedProject={selectedIndex}
+                    onSelectedProject={(project: ProjectTypes)=> setSelectedIndex(project)}
+                />
                 <ProjectModal
                     comments={projectComment}
                     data={selectedIndex}
                     onClose={()=> setSelectedIndex(null)}
                     user={user}
+                    goNext={()=>setSelectedIndex(selectedIndex)}
+                    goPrevious={()=>setSelectedIndex(selectedIndex)}
                 />
             </div>
         </>

@@ -1,10 +1,11 @@
 "use client"
+
+import { useEffect, useRef } from 'react'
 import { ColumnDef, Row } from '@tanstack/react-table'
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from 'lucide-react'
 import { type ProjectTypes as ProjectRow} from '@/src/schemas'
 import { colorValueProgress } from '@/components/actividades/activity-table/columns'
-
 
 export function filterAssigneesNames <TData> (
     row: Row<TData>,
@@ -97,14 +98,18 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
                 </section>
             )
         },
-        cell: ({ row }) => (
-            <div
-                className="text-blue-600 cursor-pointer text-center"
-                onClick={ () => setSelectedIndex(row.original) }
-            >
-                { row.getValue("titulo") }
-            </div>
-        )
+        cell: ({ row }) => {
+
+            return (
+                <section
+                    className="text-blue-600 cursor-pointer text-center"
+                    onClick={ () => setSelectedIndex(row.original) }
+                    id='update'
+                >
+                    { row.getValue("titulo") }
+                </section>
+            )
+        }
     },
     {
         accessorKey: 'estado',

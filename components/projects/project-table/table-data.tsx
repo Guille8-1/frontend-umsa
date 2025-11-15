@@ -22,16 +22,21 @@ import {
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ProjectTypes } from "@/src/schemas";
 
-interface ProjectTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface ProjectTableProps {
+  columns: ColumnDef<ProjectTypes, any>[];
+  data: ProjectTypes[];
+  selectedProject: ProjectTypes | null
+  onSelectedProject: (project: ProjectTypes) => void
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable({
   columns,
   data,
-}: ProjectTableProps<TData, TValue>) {
+  selectedProject,
+  onSelectedProject
+}: ProjectTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "id", desc: true },
   ]);

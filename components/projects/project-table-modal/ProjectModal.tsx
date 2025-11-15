@@ -1,5 +1,5 @@
-import { useActionState, useEffect, useState } from "react";
-import { MultiValue } from "react-select";
+import { useActionState, useEffect, useState, useRef } from "react";
+import Select, { MultiValue } from "react-select";
 import { motion } from "framer-motion";
 import { ProjectTypes, Comments } from "@/src/schemas";
 import { createComment } from "@/actions/create-comment-action";
@@ -8,22 +8,23 @@ import { setValue } from "@/src/Store";
 import { useDispatch } from "react-redux";
 import sanitizeHtml from "sanitize-html";
 import { IoClose } from "react-icons/io5";
-import { HiOutlinePencilSquare } from "react-icons/hi2";
-import { FaSave } from "react-icons/fa";
 import { GetUserType, User } from "@/src/schemas";
 import { getDataUser } from "@/src/API/client-fetching-action";
 import { type userOptions } from "@/components/projects/CreateProjectForm";
-import { updateProject, updateAssigned } from "@/actions/update-project-action";
+import { updateProject } from "@/actions/update-project-action";
+import { updateAssigned } from "@/actions/update-user-project-action";
+
+
 
 interface UserProjectModalProps {
   data: ProjectTypes | null;
   comments: Comments | null;
   onClose: () => void;
   user: User;
-  //     goPrevious: () => void,
-  //     goNext: () => void,
-  //     disablePrevious: boolean,
-  //     disableNext: boolean
+  goPrevious: () => void,
+  goNext: () => void,
+  // disablePrevious: boolean,
+  // disableNext: boolean
 }
 
 export function ProjectModal({
@@ -31,6 +32,8 @@ export function ProjectModal({
   comments,
   user,
   onClose,
+  goNext
+  //goPrevious
 }: UserProjectModalProps) {
   const createdDate: string | null | undefined = data?.createdDate;
 
@@ -60,13 +63,16 @@ export function ProjectModal({
     ),
     fechaActualizada: new Date(
       comment.updatedDate ?? new Date(),
-    ).toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
+    ).toLocaleString(
+      "en-GB", 
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    ),
   }));
 
   const linkfy = (comment: string): string => {
@@ -114,8 +120,15 @@ export function ProjectModal({
   }, [state]);
 
   const fetchDispatch = useDispatch();
+  
+  const [k, setK] = useState<number>(0);
+  const update = useRef<HTMLButtonElement>(null)
+
   const dispatchFunction = () => {
-    fetchDispatch(setValue("changed"));
+    setTimeout(()=>{
+      update.current?.click()
+      fetchDispatch(setValue("changed"));
+    },800)
   };
 
   const [edit, setEdit] = useState<boolean>(false);
@@ -123,30 +136,16 @@ export function ProjectModal({
 
   const editValue = () => {
     setEdit(true);
-    if (edit) {
-      setEdit(false);
-    }
+    edit ? setEdit(false) : "";
   };
   const asignedEditValue = () => {
     setAsignadosEdit(true);
-    if (asignadosEdit) {
-      setAsignadosEdit(false);
-    }
+    asignadosEdit ? setAsignadosEdit(false) : ""
+
   };
+  
 
-  const capFirstLetter = (name: string) => {
-    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-  };
-
-  const userName = data?.gestor.split(" ") ?? "novalue";
-  const usrFisrtName = userName[0];
-  const usrLastName = userName[1];
-
-  const firstName = capFirstLetter(usrFisrtName);
-  const lastName = capFirstLetter(usrLastName);
-
-  const fullName = firstName + " " + lastName;
-  const statusFormal = capFirstLetter(data?.estado ?? "no value");
+  // const statusFormal = capFirstLetter(data?.estado ?? "no value");
 
   //const userInit = data?.asignados ?? [];
 
@@ -167,11 +166,21 @@ export function ProjectModal({
   const [users, setUsers] = useState<GetUserType>([]);
   const [slctEditUser, setSlctEditUser] = useState<userOptions[] | null>([]);
   const userEditOptions: userOptions[] = [];
+  
+  
 
   const addingEditUser = (userEdit: MultiValue<userOptions>) => {
     setSlctEditUser([...userEdit]);
+    //assignees = [...userEdit].join(", ")
   };
-
+  const newAssiged: userOptions[] | null = [...(slctEditUser ?? [])]
+  let liveUsers: string | undefined
+  
+    for(const name of newAssiged){
+      const {label} = name
+      liveUsers += `${label}, `
+    }
+    
   useEffect(() => {
     async function fetchEditUsers() {
       const updateUser = await getDataUser();
@@ -225,22 +234,15 @@ export function ProjectModal({
     if (assignState.success) {
       toast.success(assignState.success);
       setAsignadosEdit(false);
-      setRefresh(false);
+      toast.info('Puede Tomar algunos minutos en verse los cambios en este menu de Proyecto')
+      
     }
   }, [assignState]);
 
-  const [refresh, setRefresh] = useState<boolean>(false);
-
-  const alets = () => {
-    alert("Tabla Actualizada!");
-    setRefresh(true);
-    if (refresh) {
-      setRefresh(false);
-    }
-  };
-
   return (
     <>
+    <section className="" id="governor">
+      <button className="hiddem" onClick={()=> setK(k+1)} ref={update}></button>
       {data && <div onClick={onClose} />}
       <section className="w-auto">
         <motion.aside
@@ -279,11 +281,73 @@ export function ProjectModal({
                   </button>
                 </div>
               </div>
+              <button onClick={goNext}>test</button>
               <div className={"w-full h-[2px] bg-gray-400 mx-auto my-4"} />
-
-              <section className="flex flex-row">
-                <section></section>
-                <section></section>
+              <section className="flex flex-row mx-2 gap-3 my-3 bg-[#D8E1E8] p-3 pr-4 rounded-lg items-center justify-between">
+                <form noValidate action={assigDispatch} className="flex flex-row items-center justify-between  w-full">
+                  <section className="flex flex-row mx-2 gap-3 items-center">
+                    <section>
+                      <p className="font-bold">Asignados:</p>
+                    </section>
+                    <input 
+                      type="text" 
+                      className={"hidden"}
+                      defaultValue={data.id}
+                      name="idProject"
+                    />
+                    <input 
+                      type="text" 
+                      className={"hidden"}
+                      defaultValue={data.user.id}
+                      name="userId"
+                    />
+                    <section >
+                      {asignadosEdit ? (
+                        <Select
+                          name="usersEdit"
+                          options={userEditOptions}
+                          value={slctEditUser}
+                          onChange={addingEditUser}
+                          className="w-full border border-gray-300 p-3 rounded-lg"
+                          placeholder="Asignar Usuarios"
+                          isMulti={true}
+                          isSearchable={true}
+                          key={k}
+                        />
+                      ) : (
+                        <p key={k} className="font-bold text-sky-800  ">{data.asignados.join(', ')}</p>
+                      )}
+                    </section>
+                  </section>
+                  {
+                    asignadosEdit ? (
+                    <section className="flex flex-row gap-3">
+                      <input 
+                          onClick={dispatchFunction}
+                          type="submit"
+                          className="bg-sky-600 text-white px-2 p-1 rounded-md cursor-pointer"
+                          value={"Guardar"}
+                        />
+                        <button 
+                          onClick={asignedEditValue}
+                          className="bg-red-700 text-white px-2 p-1 rounded-md">
+                          Cancelar
+                        </button> 
+                    </section>
+                    ) : (<></>)
+                  }
+                </form>
+                    {asignadosEdit ? (<></>) : (
+                      <>
+                        <button 
+                            onClick={()=>{
+                              asignedEditValue()
+                            }}
+                            className="bg-sky-800 text-white px-2 p-1 rounded-md">
+                            Reasignar
+                        </button>
+                      </>
+                    )}
               </section>
               <form
                 className="flex flex-col items-top bg-[#D8E1E8] rounded-2xl justify-between items-center shadow-xl border-2 border-[#D8E1E8]"
@@ -322,7 +386,7 @@ export function ProjectModal({
                             <option value="cerrado">Cerrado</option>
                           </select>
                         ) : (
-                          <p className="mt-2">{statusFormal}</p>
+                          <p className="mt-2">{data.estado}</p>
                         )}
                       </div>
                     </section>
@@ -494,35 +558,10 @@ export function ProjectModal({
                               }
                             >
                               Guardar
-                              <FaSave
-                                color="#fff"
-                                size={"1.1em"}
-                                className={"ml-2"}
-                              />
-                            </button>
-                            <button
-                              onClick={editValue}
-                              className={"font-semibold text-red-800"}
-                            >
-                              Cancelar
                             </button>
                           </section>
                         ) : (
-                          <section className={"flex justify-start"}>
-                            <button
-                              onClick={editValue}
-                              className={
-                                "flex bg-sky-700 rounded-xl p-2 font-semibold text-white"
-                              }
-                            >
-                              Editar
-                              <HiOutlinePencilSquare
-                                color="#fff"
-                                size={"1.2em"}
-                                className={"ml-2"}
-                              />
-                            </button>
-                          </section>
+                          <></>
                         )}
                       </section>
                     ) : (
@@ -531,6 +570,30 @@ export function ProjectModal({
                   </section>
                 </section>
               </form>
+              { edit && user.nivel != 4 ? (
+                
+                <section 
+                  className={"flex flex-row items-center gap-2 mt-4"}>
+                  <button
+                      onClick={editValue}
+                      className={"font-semibold bg-red-700 text-white p-1 px-4 rounded-lg"}
+                    >
+                        Cancelar
+                  </button>
+                </section>
+              ) : (
+                <section className={"flex flex-row items-center gap-2 mt-4"}>
+                    <button
+                      onClick={editValue}
+                      className={
+                        "flex bg-sky-800 rounded-lg p-1 px-3 font-semibold text-white"
+                      }
+                    >
+                      Editar
+                    </button>
+                </section>
+              )
+              }
               {/* Comentarios*/}
               <div className={"w-full h-[2px] bg-gray-400 mx-auto mt-6"} />
               <div
@@ -605,7 +668,8 @@ export function ProjectModal({
               </section>
             </section>
           ) : null}
-        </motion.aside>
+          </motion.aside>
+        </section>
       </section>
     </>
   );
