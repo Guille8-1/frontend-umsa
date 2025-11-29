@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { getProjects, getCommentById, getProjectsUsers } from "@/src/API/client-fetching-action";
-import { ProjectTypes, Comments, ProjectArrayType, User} from "@/src/schemas";
+import { getProjects, getCommentById } from "@/src/API/client-fetching-action";
+import { ProjectTypes, Comments, User} from "@/src/schemas";
 import { getColumns } from "@/components/projects/project-table/columns";
 import { DataTable } from "@/components/projects/project-table/table-data";
 import { ProjectModal } from "@/components/projects/project-table-modal/ProjectModal";
@@ -24,23 +24,11 @@ export default function TableProject({ user }: { user: User }) {
         if(reFetch === 'idle') {
             async function projectResources(userId: number) {
                 const projectsOk = await getProjects(userId);
-                const projectsAssigned = await getProjectsUsers(userId);
-                const jointProjects = projectsOk.concat(projectsAssigned);
-                const noRepeatId = (uniqueProjects: ProjectArrayType) => {
-                    const seenIds = new Set();
-                    return uniqueProjects.filter((project)=> {
-                        if(seenIds.has(project.id)) return false;
-                        seenIds.add(project.id);
-                        return true;
-                    })
-                }
-                const uniqueProjects = noRepeatId(jointProjects);
-                setProjects(uniqueProjects);
+                setProjects(projectsOk);
                 const projectId = selectedIndex?.id ?? 0;
                 const prjComents = await getCommentById(projectId);
                 setProjectComment(prjComents);
                 setSelectedIndex(selectedIndex)
-                console.log('control this fn')
             }
             projectResources(user.id).then();
         };
@@ -50,11 +38,11 @@ export default function TableProject({ user }: { user: User }) {
     const columns = getColumns(setSelectedIndex)
 
     const currentIndex = selectedIndex ? projects.findIndex(prj => prj.id === projectid): -1
-
+    
     const goNext = () => {
         if(currentIndex === -1)
             return
-        if(currentIndex > 0){
+        if(currentIndex < projects.length - 1){
             setSelectedIndex(projects[currentIndex + 1])
         }
     }
@@ -81,8 +69,8 @@ export default function TableProject({ user }: { user: User }) {
                     data={selectedIndex}
                     onClose={()=> setSelectedIndex(null)}
                     user={user}
-                    goNext={()=>setSelectedIndex(selectedIndex)}
-                    goPrevious={()=>setSelectedIndex(selectedIndex)}
+                    goNext={goNext}
+                    goPrevious={goPrevious}
                 />
             </div>
         </>

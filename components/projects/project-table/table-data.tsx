@@ -7,7 +7,6 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-  RowSelectionState,
 } from "@tanstack/react-table";
 
 import {
@@ -43,7 +42,7 @@ export function DataTable({
   const [globalFilter, setGlobalFilter] = useState<string>("");
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(15);
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+
 
   const table = useReactTable({
     data,
@@ -53,7 +52,6 @@ export function DataTable({
     globalFilterFn: "includesString",
     onSortingChange: setSorting,
     manualPagination: false,
-    enableRowSelection: true,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -68,14 +66,13 @@ export function DataTable({
     },
     state: {
       sorting,
-      rowSelection,
       globalFilter,
       pagination: {
         pageIndex,
         pageSize,
       },
     },
-    onRowSelectionChange: setRowSelection,
+
   });
 
   return (
@@ -101,9 +98,9 @@ export function DataTable({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
@@ -113,16 +110,16 @@ export function DataTable({
           <TableBody>
             {(table.getRowModel().rows ?? 0) ? (
               table.getRowModel().rows.map((row) => {
-                const isSelected = row.getIsSelected();
                 return (
                   <TableRow
-                    onClick={() => {
-                      table.resetRowSelection();
-                      row.toggleSelected(true);
-                    }}
-                    className={`hover:bg-yellow-100 ${isSelected ? "bg-yellow-100" : ""}`}
                     key={row.id}
-                    data-state={row.getIsSelected() && "Seleccionado"}
+                    onClick={() => {
+                      onSelectedProject(row.original)
+                    }
+                    }
+                    data-state={selectedProject?.id === row.original.id ? "selected" : undefined}
+                    className="hover:bg-yellow-100 myTesting"
+
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

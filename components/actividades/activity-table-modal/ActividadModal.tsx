@@ -13,7 +13,9 @@ import { type userOptions } from '@/components/projects/CreateProjectForm';
 import Select, { MultiValue } from "react-select";
 import { FaEdit } from "react-icons/fa";
 import { FaSave } from "react-icons/fa";
-import { User } from '@/src/schemas/index'
+import { User } from '@/src/schemas/index';
+import { GrNext } from "react-icons/gr";
+import { GrPrevious } from "react-icons/gr";
 
 
 interface UserProjectModalProps {
@@ -21,13 +23,17 @@ interface UserProjectModalProps {
     comments: CommentsActivity | null,
     onClose: () => void,
     user: User
-    //     goPrevious: () => void,
-    //     goNext: () => void,
-    //     disablePrevious: boolean,
-    //     disableNext: boolean
+    goPrevious: () => void,
+    goNext: () => void,
 }
 
-export function ActividadModal({ data, comments, user, onClose }: UserProjectModalProps) {
+export function ActividadModal({ data,
+     comments,
+     user,
+     onClose,
+     goNext,
+     goPrevious
+     }: UserProjectModalProps) {
 
     const createdDate: string | null | undefined = data?.createdDate;
     const created = new Date(createdDate ?? new Date());
@@ -165,20 +171,52 @@ export function ActividadModal({ data, comments, user, onClose }: UserProjectMod
                 >
                     {data ? (
                         <section className="w-full">
-                            <div className="flex flex-row items-center w-full justify-center gap-4">
-                                <div className='flex flex-col bg-gray-300 items-center rounded-2xl px-4 py-1 shadow-xl border-gray-300 border-2'>
-                                    <h1>Proyecto</h1>
-
-                                    <h2
-                                        className="font-bold text-center text-xl text-sky-800 rounded-2xl">
-                                        {data.tituloActividad}
-                                    </h2>
+                            <section className='mx-auto w-full rounded-2xl px-5 mt-2 items-center p-1 flex flex-row gap-8'>
+                                <div className="flex flex-row items-center justify-between gap-4 w-full">
+                                    <section 
+                                        onClick={goPrevious}
+                                        className="rounded-xl bg-sky-700 p-2 cursor-pointer flex flex-col gap-2 w-22"
+                                    >
+                                        <button
+                                        className="flex flex-col items-center">
+                                            <GrPrevious
+                                                size={"1.3rem"}
+                                                color="#fff"
+                                            />
+                                        </button>
+                                        <p className='text-white font-bold'>Anterior</p>
+                                    </section>
+                                    <div className='flex flex-col gap-2 items-center bg-gray-300 border-2 border-gray-300 shadow-lg py-1 px-3 rounded-xl justify-center'>
+                                        <h2 className='font-semibold'>Proyecto:  
+                                            <span
+                                                className='font-bold'
+                                            >{` ${data.id}`}</span>
+                                        </h2>
+                                        <h1
+                                            className="font-semibold text-center text-lg text-sky-800 rounded-2xl">
+                                            {data.tituloActividad.toUpperCase()}
+                                        </h1>
+                                    </div>
+                                    <section
+                                        onClick={goNext}
+                                        className="rounded-xl bg-green-700 p-2 cursor-pointer flex flex-col gap-2 w-22"
+                                    >
+                                        <button
+                                        className="flex flex-col items-center">
+                                            <GrNext
+                                                size={"1.3rem"}
+                                                color="#fff"
+                                            />
+                                        </button>
+                                        <p className='text-white font-bold'>Anterior</p>
+                                    </section>
                                 </div>
                                 <button
                                     className="text-xl text-white px-2 py-3 font-light flex align-middle items-center rounded-2xl bg-gray-300 w-12 h-14"
                                     onClick={onClose}> <IoClose color='#A62121' size='1.5em' />
                                 </button>
-                            </div>
+                            </section>
+
                             <div className='w-full h-[2px] bg-gray-400 mt-4' />
                             <div className="mt-2 flex flex-col w-auto p-4 rounded-2xl bg-slate-400">
                                 <form action="">

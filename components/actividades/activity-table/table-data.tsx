@@ -6,7 +6,7 @@ import {
     getPaginationRowModel,
     flexRender,
     getCoreRowModel,
-    useReactTable, RowSelectionState
+    useReactTable
 } from "@tanstack/react-table"
 
 import {
@@ -21,18 +21,25 @@ import {
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from "@/components/ui/button"
+import { ActivityTypes } from "@/src/schemas"
 
-interface ActivityTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[],
-    data: TData[]
+interface ActivityTableProps {
+    columns: ColumnDef<ActivityTypes, any>[];
+    data: ActivityTypes[]
+    selectedActivity: ActivityTypes | null
+    onSelectedActivity: (activity: ActivityTypes) => void
 }
 
-export function DataTable<TData, TValue>({columns, data}: ActivityTableProps<TData, TValue>) {
+export function DataTable({ 
+    columns,
+    data,
+    selectedActivity,
+    onSelectedActivity
+}: ActivityTableProps) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [globalFilter, setGlobalFilter] = useState<string>('')
     const [pageIndex, setPageIndex] = useState(0)
     const [pageSize, setPageSize] = useState(10)
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
     const table = useReactTable({
         data,
@@ -48,24 +55,22 @@ export function DataTable<TData, TValue>({columns, data}: ActivityTableProps<TDa
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: (updater) => {
-            const newState = typeof updater === 'function' ? updater({ pageIndex,pageSize }) : updater
+            const newState = typeof updater === 'function' ? updater({ pageIndex, pageSize }) : updater
             setPageIndex(newState.pageIndex)
             setPageSize(newState.pageSize)
         },
-        state:{
+        state: {
             sorting,
-            rowSelection,
             globalFilter,
-            pagination:{
+            pagination: {
                 pageIndex,
                 pageSize
             },
         },
-        onRowSelectionChange: setRowSelection
     })
     return (
         <>
-             <section className="flex items-center py-4 w-52">
+            <section className="flex items-center py-4 w-52">
                 <Input
                     placeholder="Buscar..."
                     value={globalFilter ?? ''}
@@ -79,12 +84,11 @@ export function DataTable<TData, TValue>({columns, data}: ActivityTableProps<TDa
                             <TableRow
                                 className="hover:bg-sky-800 bg-sky-800"
                                 key={headerGroup.id}
-                                >
+                            >
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead 
-                                        onClick={()=>{console.log('hello headers or haters...')}}
-                                        key={header.id}>
+                                        <TableHead
+                                            key={header.id}>
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -101,16 +105,16 @@ export function DataTable<TData, TValue>({columns, data}: ActivityTableProps<TDa
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => {
-                                const isSelected = row.getIsSelected()
                                 return (
                                     <TableRow
-                                        onClick={()=> {
-                                            table.resetRowSelection()
-                                            row.toggleSelected(true)
-                                        }}
-                                        className={`hover:bg-yellow-100 ${isSelected ? 'bg-yellow-100' :''}`}
                                         key={row.id}
-                                        data-state={row.getIsSelected() && "Seleccionado"}
+                                        onClick={() => {
+                                            onSelectedActivity(row.original)
+                                        }}
+                                        data-state={selectedActivity?.id === row.original.id ? "selected":
+                                            undefined
+                                        }
+                                        className="hover:bg-yellow-100"
                                     >
                                         {row.getVisibleCells().map((cell) => (
                                             <TableCell key={cell.id}>

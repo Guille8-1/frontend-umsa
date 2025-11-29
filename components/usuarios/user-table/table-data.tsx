@@ -19,16 +19,15 @@ import {
 } from '@/components/ui/table';
 
 import { Input } from "@/components/ui/input";
-import {useState} from "react";
-import {Button} from "@/components/ui/button";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface UserTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
 }
 
-export function DataUsersTable<TData, TValue>({columns, data}: UserTableProps<TData, TValue>)
-{
+export function DataUsersTable<TData, TValue>({ columns, data }: UserTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [globalFilter, setGlobalFilter] = useState<string>('')
     const [pageIndex, setPageIndex] = useState<number>(0)
@@ -49,15 +48,15 @@ export function DataUsersTable<TData, TValue>({columns, data}: UserTableProps<TD
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onPaginationChange: (updater) => {
-            const newState = typeof updater === 'function' ? updater({ pageIndex,pageSize }) : updater
+            const newState = typeof updater === 'function' ? updater({ pageIndex, pageSize }) : updater
             setPageIndex(newState.pageIndex)
             setPageSize(newState.pageSize)
         },
-        state:{
+        state: {
             sorting,
             rowSelection,
             globalFilter,
-            pagination:{
+            pagination: {
                 pageIndex,
                 pageSize
             },
@@ -82,7 +81,7 @@ export function DataUsersTable<TData, TValue>({columns, data}: UserTableProps<TD
                                 key={headerGroup.id}
                                 className="hover:bg-sky-800 bg-sky-800"
                             >
-                                {headerGroup.headers.map((header)=>{
+                                {headerGroup.headers.map((header) => {
                                     return (
                                         <>
                                             <TableHead
@@ -105,11 +104,11 @@ export function DataUsersTable<TData, TValue>({columns, data}: UserTableProps<TD
                                 const isSelected = row.getIsSelected()
                                 return (
                                     <TableRow
-                                        onClick={()=> {
+                                        onClick={() => {
                                             table.resetRowSelection()
                                             row.toggleSelected(true)
                                         }}
-                                        className={`hover:bg-yellow-100 ${isSelected ? 'bg-yellow-100' :''}`}
+                                        className={`hover:bg-yellow-100 ${isSelected ? 'bg-yellow-100' : ''}`}
                                         key={row.id}
                                         data-state={row.getIsSelected() && "Seleccionado"}
                                     >

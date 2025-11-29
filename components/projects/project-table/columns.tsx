@@ -1,11 +1,10 @@
 "use client"
 
-import { useEffect, useRef } from 'react'
 import { ColumnDef, Row } from '@tanstack/react-table'
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from 'lucide-react'
 import { type ProjectTypes as ProjectRow} from '@/src/schemas'
-import { colorValueProgress } from '@/components/actividades/activity-table/columns'
+import { colorValueProgress, stringPriority, stringStatus } from './tableLogic' 
 
 export function filterAssigneesNames <TData> (
     row: Row<TData>,
@@ -20,29 +19,7 @@ export function filterAssigneesNames <TData> (
     return true;
 }
 
-function stringPriority (value: string) {
-    switch(value.toLowerCase()){
-        case 'urgente':
-            return '#B00707';
-        case 'media':
-            return '#FF9900';
-        case 'baja':
-            return '#005075';
-        default:
-            return '#9e9e9e';
-    }
-}
 
-function stringStatus (value: string) {
-    switch(value.toLowerCase()) {
-        case 'mora':
-            return '#B00707';
-        case 'pendiente':
-            return '#005075';
-        case 'activo':
-            return '#0BA300';
-    }
-}
 
 export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): ColumnDef<ProjectRow>[] => [
     {

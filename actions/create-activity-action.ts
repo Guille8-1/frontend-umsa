@@ -65,7 +65,7 @@ export async function createActivity(
     oficinaOrigenActividad: activityValidation.data.oficinaOrigenActividad,
     prioridadActividad: activityValidation.data.prioridadActividad,
   };
-
+  console.log(bodyRequest);
   const url = `${process.env.BACK_URL}/actividades/createactividad`;
 
   const request = await fetch(url, {

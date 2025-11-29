@@ -2,45 +2,23 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { Button } from '@/components/ui/button'
 import { ArrowUpDown } from "lucide-react";
 import { type ActivityTypes as ActivityRow } from "@/src/schemas";
+import { filterAssigneesNames } from "@/components/projects/project-table/columns";
+import { colorValueProgress, stringPriority, stringStatus } from "@/components/projects/project-table/tableLogic";
+import { string } from "zod";
+import { color } from "framer-motion";
 
-export function filterAssigneesNames <TData> (
-    row: Row<TData>,
-    columnId: string,
-    filterName: string[]
-) {
-    const rowValue: string = row.getValue(columnId)
-    if(columnId === 'asignados') {
-        return filterName.some((name) => rowValue.toLowerCase().includes(name.toLowerCase()))
-    }
-    return true
-}
 
-function hslToHex(h: number, s: number, l: number) {
-    s /= 100;
-    l /= 100;
-    const k = (n: number) => (n + h / 30) % 12;
-    const a = s * Math.min(l, 1 - l);
-    const f = (n: number) =>
-      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-    const toHex = (x: number) => Math.round(x * 255).toString(16).padStart(2, "0");
-    return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
-  }
 
-export function colorValueProgress (val: number) {
-    const v = Math.min(Math.max(val, 0), 100);
-    const hue = (v * 120) / 100;
-    return hslToHex(hue, 100, 45);
-}
 
 export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): ColumnDef<ActivityRow>[] => [
     {
         accessorKey: 'id',
-        header: ({column}) => {
+        header: ({ column }) => {
             return (
                 <Button
-                    variant= 'ghost'
+                    variant='ghost'
                     className="px-0 text-white hover:text-white hover:bg-sky-800"
-                    onClick={()=>column.toggleSorting(column.getIsSorted() === 'asc')}
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                 >
                     Id
                     <ArrowUpDown />
@@ -50,16 +28,16 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
     },
     {
         accessorKey: 'asignados',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className="">
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 "
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Asignados
-                        <ArrowUpDown/>
+                        <ArrowUpDown />
                     </Button>
                 </section>
             )
@@ -67,21 +45,21 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
         cell: ({ row }) => (
             <section className="w-auto">
                 {
-                     row.original.asignadosActividad?.map((asignado) => asignado.charAt(0).toUpperCase() + asignado.slice(1)).join(", ") || "N/A"
+                    row.original.asignadosActividad?.map((asignado) => asignado.charAt(0).toUpperCase() + asignado.slice(1)).join(", ") || "N/A"
                 }
             </section>
         ),
-        filterFn: filterAssigneesNames        
+        filterFn: filterAssigneesNames
     },
     {
         accessorKey: 'tituloActividad',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className="flex flex-row">
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Titulo Actividad
                         <ArrowUpDown />
@@ -92,21 +70,21 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
         cell: ({ row }) => (
             <div
                 className="text-blue-600 cursor-pointer text-center"
-                onClick={ () => setSelectedIndex(row.original) }
+                onClick={() => setSelectedIndex(row.original)}
             >
-                { row.getValue("tituloActividad") }
+                {row.getValue("tituloActividad")}
             </div>
         )
     },
     {
         accessorKey: 'estadoActividad',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className="flex flex-row">
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Estado
                         <ArrowUpDown />
@@ -114,21 +92,30 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
                 </section>
             )
         },
-        cell: ({row}) => (
-            <section className="text-green-500 font-bold text-[1.2em] text-center">
-                {row.getValue('estadoActividad')}
-            </section>
-        )
+        cell: ({ row }) => {
+            const value: string = row.getValue("estadoActividad");
+            const colorSet = stringStatus(value);
+            return (
+                <section
+                    style={{
+                        color: colorSet
+                    }}
+                    className="text-center mx-auto font-semibold"
+                >
+                    {row.getValue("estadoActividad")}
+                </section>
+            )
+        }
     },
     {
         accessorKey: 'avanceActividad',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className="flex">
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Avance
                         <ArrowUpDown />
@@ -136,37 +123,37 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
                 </section>
             )
         },
-        cell: ({row}) =>  {
+        cell: ({ row }) => {
             const val: number = row.getValue('avanceActividad');
             const colorStg = colorValueProgress(val);
             return (
-                <section 
-                className={`text-center`}
-                style={{
-                    color: colorStg
-                }}
+                <section
+                    className={`text-center`}
+                    style={{
+                        color: colorStg
+                    }}
                 >
                     {row.getValue('avanceActividad')} %
                 </section>
             )
-        } 
-    },{
+        }
+    }, {
         accessorKey: 'gestor',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className="flex">
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Gestor Actividad
-                        <ArrowUpDown/>
+                        <ArrowUpDown />
                     </Button>
                 </section>
             )
         },
-        cell: ({row}) => (
+        cell: ({ row }) => (
             <section className="text-center">
                 {row.original.gestorActividad ? row.original.gestorActividad.charAt(0).toUpperCase() + row.original.gestorActividad.slice(1) : "N/A"}
             </section>
@@ -174,13 +161,13 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
     },
     {
         accessorKey: 'prioridadActividad',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className="flex">
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Prioridad
                         <ArrowUpDown />
@@ -188,9 +175,15 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
                 </section>
             )
         },
-        cell: ({row}) => {
+        cell: ({ row }) => {
+            const value: string = row.getValue('prioridadActividad')
+            const colorSet = stringPriority(value)
             return (
-                <section className={`text-center`}>
+                <section 
+                style={{
+                    color: colorSet
+                }}
+                className={`text-center`}>
                     {row.getValue('prioridadActividad')}
                 </section>
             )
@@ -198,13 +191,13 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
     },
     {
         accessorKey: 'diasActivoActividad',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className="flex">
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Dias Act
                         <ArrowUpDown />
@@ -212,7 +205,7 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
                 </section>
             )
         },
-        cell: ({row}) => (
+        cell: ({ row }) => (
             <section className="text-center">
                 {row.getValue('diasActivoActividad')}
             </section>
@@ -220,13 +213,13 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
     },
     {
         accessorKey: 'oficinaOrigenActividad',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className="flex">
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Origen
                         <ArrowUpDown />
@@ -234,7 +227,7 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
                 </section>
             )
         },
-        cell: ({row}) => ( 
+        cell: ({ row }) => (
             <section className="text-center">
                 {row.getValue('oficinaOrigenActividad')}
             </section>
@@ -242,13 +235,13 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
     },
     {
         accessorKey: 'createdDate',
-        header: ({column}) => {
+        header: ({ column }) => {
             return (
                 <section className="flex flex-row align-middle">
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 text-right mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Creacion
                         <ArrowUpDown />

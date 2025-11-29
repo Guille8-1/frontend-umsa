@@ -65,17 +65,6 @@ export async function getProjects(id: number) {
   return ProjectsFullArray.parse(json);
 }
 
-export async function getProjectsUsers(userId: number) {
-  const { token } = await verifySession();
-  const url: string = `${process.env.BACK_URL}/projects/assigned/${userId}`;
-  const request = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const json = await request.json();
-  return ProjectsFullArray.parse(json);
-}
 
 export async function getCommentById(id: number) {
   const { token } = await verifySession();

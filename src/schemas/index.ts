@@ -170,8 +170,8 @@ export const CommentsActivity = z.array(
   }),
 );
 export const CreateActivitySchema = z.object({
-  tituloActividad: z.string().min(5, { message: "titulo demsadio corto" }),
-  categoriaActividad: z.string(),
+  tituloActividad: z.string().min(5, { message: "Titulo Demsadio Corto" }),
+  categoriaActividad: z.string().min(1,{message: "Categoria Necesaria"}),
   asignadosActividadId: z.
         array(z.string())
         .max(4, {message:'Numero de Asignados no Permitido'}),
@@ -185,8 +185,8 @@ export const ActivitySchemaResponse = z.object({
   id: z.number(),
   tituloActividad: z.string(),
   asignadosActividad: z.array(z.string()),
-  categoriaActividad: z.nullable(z.string()),
-  asignadosActividadId: z.nullable(z.array(z.number())),
+  categoriaActividad: (z.string()),
+  asignadosActividadId: (z.array(z.number())),
   gestorActividad: z.string(),
   estadoActividad: z.string(),
   diasActivoActividad: z.number(),
