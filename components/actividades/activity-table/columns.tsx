@@ -1,6 +1,6 @@
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { Button } from '@/components/ui/button'
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Section } from "lucide-react";
 import { type ActivityTypes as ActivityRow } from "@/src/schemas";
 import { filterAssigneesNames } from "@/components/projects/project-table/columns";
 import { colorValueProgress, stringPriority, stringStatus } from "@/components/projects/project-table/tableLogic";
@@ -179,11 +179,11 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
             const value: string = row.getValue('prioridadActividad')
             const colorSet = stringPriority(value)
             return (
-                <section 
-                style={{
-                    color: colorSet
-                }}
-                className={`text-center`}>
+                <section
+                    style={{
+                        color: colorSet
+                    }}
+                    className={`text-center`}>
                     {row.getValue('prioridadActividad')}
                 </section>
             )
@@ -243,9 +243,24 @@ export const getColumns = (setSelectedIndex: (activity: ActivityRow) => void): C
                         className="px-0 text-white hover:text-white hover:bg-sky-800 text-right mx-auto"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Creacion
+                        Fecha Creacion
                         <ArrowUpDown />
                     </Button>
+                </section>
+            )
+        },
+        cell: ({ row }) => {
+            const actDate: string = row.getValue("createdDate");
+
+            const newDate = new Date(actDate).toLocaleString('lp-BO',{
+                timeZone: 'America/La_Paz'
+            });
+            const day = newDate.padStart(2, '0');
+            const formattedDate = `${day}`;
+
+            return (
+                <section className="text-center font-bold">
+                    {formattedDate}
                 </section>
             )
         }

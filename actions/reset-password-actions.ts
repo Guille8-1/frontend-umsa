@@ -19,7 +19,6 @@ export async function resetPwAction(prevStat: ActionState, formData: FormData) {
     repeat_password: formData.get("repeated_password"),
   };
   const { password } = passwordForm;
-  console.log("este es el objecto del form passwords", passwordForm);
 
   const pwValidation = ChangedPwSchema.safeParse(passwordForm);
 

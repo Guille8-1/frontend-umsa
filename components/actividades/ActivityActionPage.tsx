@@ -1,14 +1,13 @@
 "use client"
 
 import { TiPlus } from "react-icons/ti"
-import { User } from "@/src/schemas"
 import { Fragment, useEffect, useRef, useState } from "react"
 import { Dialog, DialogPanel, Transition, TransitionChild } from "@headlessui/react"
 import ActivityForm from "./CreateActivityForm"
 import ToastNotification from "../ui/ToastNotification"
 
 
-export function ActivityActionPage({ user }: { user: User }) {
+export function ActivityActionPage({ admin, token, secret }: { admin: boolean, token: string, secret: string }) {
     const [open, setOpen] = useState(false)
     const dialogRef = useRef(null)
 
@@ -33,7 +32,7 @@ export function ActivityActionPage({ user }: { user: User }) {
     return (
         <>
             <section className="h-auto w-full">
-                {user.admin && <button
+                {admin && <button
                     onClick={isOpen}
                     className="flex flex-row align-items-center justify-items-center gap-2 bg-sky-800 p-3 text-gray-200 rounded"
                 >
@@ -80,7 +79,10 @@ export function ActivityActionPage({ user }: { user: User }) {
                                                 >X</button>
                                             </section>
                                             <section>
-                                                <ActivityForm />
+                                                <ActivityForm
+                                                    secret={secret}
+                                                    token={token}
+                                                />
                                             </section>
                                             <div className="mx-auto my-0 mt-5 flex justify-end">
                                                 <ToastNotification />

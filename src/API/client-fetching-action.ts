@@ -77,18 +77,6 @@ export async function getCommentById(id: number) {
   return await request.json();
 }
 
-export async function getActivity(id: number) {
-  const { token } = await verifySession();
-  const url: string = `${process.env.BACK_URL}/actividades/user/${id}`;
-  const request = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  const json = await request.json();
-  return ActivityArray.parse(json);
-}
-
 export async function getActivityUsers(userId: number) {
   const { token } = await verifySession();
   const url: string = `${process.env.BACK_URL}/actividades/assigned/${userId}`;
@@ -99,15 +87,4 @@ export async function getActivityUsers(userId: number) {
   });
   const json = await request.json();
   return ActivityArray.parse(json);
-}
-
-export async function getCommentByIdActivity(id: number) {
-  const { token } = await verifySession();
-  const url: string = `${process.env.BACK_URL}/actividades/comment/activity/${id}`;
-  const request = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return await request.json();
 }

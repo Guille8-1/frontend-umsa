@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getActivity, getCommentByIdActivity } from "@/src/API/client-fetching-action";
-import { ActivityTypes, CommentsActivity, User } from "@/src/schemas";
+import { ActivityTypes, CommentsActivity } from "@/src/schemas";
 import { getColumns } from "@/components/actividades/activity-table/columns";
 import { DataTable } from "@/components/actividades/activity-table/table-data";
 import { ActividadModal } from "@/components/actividades/activity-table-modal/ActividadModal";
@@ -10,30 +9,56 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/Store/valueSlice";
 import { resetStatus } from "@/src/Store";
 
-export default function TableActivity({ user }: { user: User }) {
+export default function TableActivity({ nivel, id, token, secret }: { nivel: number, id: number, token: string, secret: string }) {
+
     const dispatch = useDispatch();
     const [activity, setActivity] = useState<ActivityTypes[]>([]);
 
     const reFetch = useSelector((state: RootState) => state.value.value);
     const [selectedIndex, setSelectedIndex] = useState<ActivityTypes | null>(null);
     const [activityComment, setActivityComment] = useState<CommentsActivity | null>(null)
-    const activityId = selectedIndex?.id
+    const activityId = selectedIndex?.id ?? 0;
 
     useEffect(() => {
         if (reFetch === 'idle') {
-            async function activityResources(userId: number) {
-                const activityOk = await getActivity(userId);
-                setActivity(activityOk);
-                const activityId = selectedIndex?.id ?? 0;
-                const activityComments = await getCommentByIdActivity(activityId);
-                setActivityComment(activityComments)
-                setSelectedIndex(selectedIndex);
-            }
-            activityResources(user.id).then()
+            setTimeout(() => {
+                const getActivity = async (id: number, token: string, secret: string) => {
+                      const url: string = `${secret}/actividades/user/${id}`;
+                      const request = await fetch(url, {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      });
+                    const activityOk = await request.json();
+                    setActivity(activityOk);
+                    console.log('refetching')
+                    console.log('last record should appear hear...', activity)
+                }
+                getActivity(id, token, secret)
+            }, 800);
+
+            setTimeout(() => {
+                const getCommentAct = async (token: string, secret: string) => {
+                    const url: string = `${secret}/actividades/comment/activity/${activityId}`
+                    const request = await fetch(url, {
+                        headers:{
+                            Authorization: `Bearer ${token}`
+                        }
+                    })
+                    const activityComments = await request.json()
+                    setActivityComment(activityComments)
+                }
+                getCommentAct(token, secret)
+            }, 800);
+
+            setSelectedIndex(selectedIndex);
+            console.log('running... how many??')
         }
         dispatch(resetStatus());
-        console.log('testing this call from modals and projects')
-    }, [user.id, activityId, selectedIndex, dispatch, reFetch])
+        console.log('testing this call from modals and activities')
+    }, [dispatch, reFetch])
+
+    //id, activityId, selectedIndex
 
     const columns = getColumns(setSelectedIndex);
 
@@ -55,7 +80,6 @@ export default function TableActivity({ user }: { user: User }) {
         }
     }
 
-
     return (
         <>
             <div className="mb-5">
@@ -69,9 +93,11 @@ export default function TableActivity({ user }: { user: User }) {
                     comments={activityComment}
                     data={selectedIndex}
                     onClose={() => setSelectedIndex(null)}
-                    user={user}
+                    nivel={nivel}
                     goPrevious={goPrevious}
                     goNext={goNext}
+                    token={token}
+                    secret={secret}
                 />
             </div>
         </>

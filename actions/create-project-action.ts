@@ -38,14 +38,6 @@ export async function createProject(
 
   const projectValidation = CreateProjectSchema.safeParse(newProject);
 
-  const userIds: FormDataEntryValue[] = newProject.asignadosId;
-  const callingForIds: userIds[] = await getUsersById(userIds);
-  console.log(callingForIds);
-  const gettingUserIds = callingForIds.map((forid) => {
-    const { id } = forid;
-    return id;
-  });
-
   if (!projectValidation.success) {
     const errors = projectValidation.error.errors.map((error) => error.message);
 
@@ -54,6 +46,15 @@ export async function createProject(
       success: "",
     };
   }
+  
+  const userIds: FormDataEntryValue[] = newProject.asignadosId;
+  const callingForIds: userIds[] = await getUsersById(userIds);
+  console.log(callingForIds);
+  const gettingUserIds = callingForIds.map((forid) => {
+    const { id } = forid;
+    return id;
+  });
+
   const bodyRequest = {
     user: user.id,
     titulo: projectValidation.data.titulo,

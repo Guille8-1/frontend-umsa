@@ -3,18 +3,18 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from 'lucide-react'
-import { type ProjectTypes as ProjectRow} from '@/src/schemas'
-import { colorValueProgress, stringPriority, stringStatus } from './tableLogic' 
+import { type ProjectTypes as ProjectRow } from '@/src/schemas'
+import { colorValueProgress, stringPriority, stringStatus } from './tableLogic'
 
-export function filterAssigneesNames <TData> (
+export function filterAssigneesNames<TData>(
     row: Row<TData>,
     columnId: string,
     filterName: string[]
 ) {
     const rowValue: string = row.getValue(columnId)
 
-    if(columnId === 'asignados') {
-        return filterName.some((name)=> rowValue.toLowerCase().includes(name.toLowerCase()))
+    if (columnId === 'asignados') {
+        return filterName.some((name) => rowValue.toLowerCase().includes(name.toLowerCase()))
     }
     return true;
 }
@@ -24,7 +24,7 @@ export function filterAssigneesNames <TData> (
 export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): ColumnDef<ProjectRow>[] => [
     {
         accessorKey: 'id',
-        header: ({column})=> {
+        header: ({ column }) => {
             const setOrder = () => {
                 column.toggleSorting(column.getIsSorted() === "asc")
             }
@@ -42,32 +42,32 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
     },
     {
         accessorKey: 'asignados',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 "
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Asignados
-                        <ArrowUpDown/>
+                        <ArrowUpDown />
                     </Button>
                 </>
             )
         },
-        cell: ({ row }) => row.original.asignados?.map((asignado)=> asignado.charAt(0).toUpperCase() + asignado.slice(1)).join(", ") || "N/A",
+        cell: ({ row }) => row.original.asignados?.map((asignado) => asignado.charAt(0).toUpperCase() + asignado.slice(1)).join(", ") || "N/A",
         filterFn: filterAssigneesNames
     },
     {
         accessorKey: 'titulo',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className='flex'>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Titulo
                         <ArrowUpDown />
@@ -80,23 +80,23 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
             return (
                 <section
                     className="text-blue-600 cursor-pointer text-center"
-                    onClick={ () => setSelectedIndex(row.original) }
+                    onClick={() => setSelectedIndex(row.original)}
                     id='update'
                 >
-                    { row.getValue("titulo") }
+                    {row.getValue("titulo")}
                 </section>
             )
         }
     },
     {
         accessorKey: 'estado',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className='flex'>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Estado
                         <ArrowUpDown />
@@ -121,14 +121,14 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
     },
     {
         accessorKey: 'avance',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <>
                     <section className="text-center">
-                            <Button
+                        <Button
                             variant="ghost"
                             className="px-0 text-white hover:text-white hover:bg-sky-800 text-center mx-auto"
-                            onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                         >
                             Avance
                             <ArrowUpDown />
@@ -141,7 +141,7 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
             const valProgress: number = row.getValue('avance')
             const colorStg = colorValueProgress(valProgress)
             return (
-                <section 
+                <section
                     className='text-center font-semibold'
                     style={{
                         color: colorStg
@@ -154,13 +154,13 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
     },
     {
         accessorKey: 'citeNumero',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Cite Numero
                         <ArrowUpDown />
@@ -178,13 +178,13 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
     },
     {
         accessorKey: 'rutaCv',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className='flex'>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Ruta Cv
                         <ArrowUpDown />
@@ -202,13 +202,13 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
     },
     {
         accessorKey: 'gestor',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className='flex'>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Gestor
                         <ArrowUpDown />
@@ -216,23 +216,23 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
                 </section>
             )
         },
-        cell: ({row}) => {
+        cell: ({ row }) => {
             return (
                 <section className='w-28 text-center'>
                     {row.original.gestor ? row.original.gestor.charAt(0).toUpperCase() + row.original.gestor.slice(1) : "N/A"}
                 </section>
             )
-        } 
+        }
     },
     {
         accessorKey: 'tipoDocumento',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className='flex'>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Tipo Documento
                         <ArrowUpDown />
@@ -250,13 +250,13 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
     },
     {
         accessorKey: 'prioridad',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className='flex'>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Prioridad
                         <ArrowUpDown />
@@ -281,13 +281,13 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
     },
     {
         accessorKey: 'diasActivo',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className='flex'>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Dias Activo
                         <ArrowUpDown />
@@ -305,13 +305,13 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
     },
     {
         accessorKey: 'oficinaOrigen',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className='flex'>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
                         Oficina
                         <ArrowUpDown />
@@ -329,24 +329,32 @@ export const getColumns = (setSelectedIndex: (project: ProjectRow) => void): Col
     },
     {
         accessorKey: 'createdDate',
-        header: ({column})=> {
+        header: ({ column }) => {
             return (
                 <section className='flex'>
                     <Button
                         variant="ghost"
                         className="px-0 text-white hover:text-white hover:bg-sky-800 mx-auto"
-                        onClick={()=>column.toggleSorting(column.getIsSorted() === "asc")}
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Creacion
+                        Fecha Creacion
                         <ArrowUpDown />
                     </Button>
                 </section>
             )
         },
         cell: ({ row }) => {
+            const prjDate: string = row.getValue('createdDate');
+            const prjNewDate = new Date(prjDate).toLocaleString('lp-BO',{
+                timeZone:'America/La_Paz'
+            });
+
+            const date = prjNewDate.padStart(2, '0');
+            const prjDateDetail = `${date}`
+
             return (
-                <section className='text-center'>
-                    {row.getValue('createdDate')}
+                <section className='text-center font-bold'>
+                    {prjDateDetail}
                 </section>
             )
         }

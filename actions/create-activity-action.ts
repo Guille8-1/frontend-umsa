@@ -35,14 +35,6 @@ export async function createActivity(
 
   const activityValidation = CreateActivitySchema.safeParse(newActivity);
 
-  const userIds: FormDataEntryValue[] = newActivity.asignadosActividadId;
-  const callingForIds: userIds[] = await getUsersById(userIds);
-
-  const gettingUserIds = callingForIds.map((forid) => {
-    const { id } = forid;
-    return id;
-  });
-
   if (!activityValidation.success) {
     const errors = activityValidation.error.errors.map(
       (error) => error.message,
@@ -53,6 +45,15 @@ export async function createActivity(
       success: "",
     };
   }
+  
+  const userIds: FormDataEntryValue[] = newActivity.asignadosActividadId;
+  const callingForIds: userIds[] = await getUsersById(userIds);
+
+  const gettingUserIds = callingForIds.map((forid) => {
+    const { id } = forid;
+    return id;
+  });
+
 
   const bodyRequest = {
     user: user.id,

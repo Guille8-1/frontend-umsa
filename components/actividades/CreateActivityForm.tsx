@@ -2,7 +2,6 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { createActivity } from "@/actions/create-activity-action";
-import { getDataUser } from "@/src/API/client-fetching-action";
 import { GetUserType } from "@/src/schemas";
 import { toast } from "react-toastify";
 //react-select
@@ -16,7 +15,12 @@ type userOptions = {
   value: string;
 };
 
-export default function ActivityForm() {
+type apiTools = {
+  token: string,
+  secret: string
+}
+
+export default function ActivityForm({secret, token}:apiTools) {
   const [state, dispatch] = useActionState(createActivity, {
     errors: [],
     success: "",
@@ -38,11 +42,17 @@ export default function ActivityForm() {
   };
 
   useEffect(() => {
-    async function fetchUsers() {
-      const userdata = await getDataUser();
-      setUsers(userdata);
+    const callingUsers = async (token: string, secret: string) => {
+      const url: string = `${secret}/users/assigned`;
+      const request = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+      });
+      const userData = await request.json()
+      setUsers(userData);
     }
-    fetchUsers().then();
+    callingUsers(token, secret);
   }, [])
 
   useEffect(() => {

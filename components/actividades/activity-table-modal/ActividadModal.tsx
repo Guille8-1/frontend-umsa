@@ -13,7 +13,6 @@ import { type userOptions } from '@/components/projects/CreateProjectForm';
 import Select, { MultiValue } from "react-select";
 import { FaEdit } from "react-icons/fa";
 import { FaSave } from "react-icons/fa";
-import { User } from '@/src/schemas/index';
 import { GrNext } from "react-icons/gr";
 import { GrPrevious } from "react-icons/gr";
 
@@ -22,18 +21,22 @@ interface UserProjectModalProps {
     data: ActivityTypes | null,
     comments: CommentsActivity | null,
     onClose: () => void,
-    user: User
+    nivel: number
     goPrevious: () => void,
     goNext: () => void,
+    token: string,
+    secret: string
 }
 
 export function ActividadModal({ data,
-     comments,
-     user,
-     onClose,
-     goNext,
-     goPrevious
-     }: UserProjectModalProps) {
+    comments,
+    nivel,
+    onClose,
+    goNext,
+    goPrevious,
+    token,
+    secret
+}: UserProjectModalProps) {
 
     const createdDate: string | null | undefined = data?.createdDate;
     const created = new Date(createdDate ?? new Date());
@@ -138,11 +141,17 @@ export function ActividadModal({ data,
     }
 
     useEffect(() => {
-        async function getEditUsers() {
-            const updateUser = await getDataUser();
-            setUsers(updateUser);
+        const callingUsers = async (token: string, secret: string) => {
+            const url: string = `${secret}/users/assigned`;
+            const request = await fetch(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+            });
+            const userData = await request.json()
+            setUsers(userData);
         }
-        getEditUsers().then()
+        callingUsers(token, secret);
     }, [])
 
     for (const userEdit of users) {
@@ -173,12 +182,12 @@ export function ActividadModal({ data,
                         <section className="w-full">
                             <section className='mx-auto w-full rounded-2xl px-5 mt-2 items-center p-1 flex flex-row gap-8'>
                                 <div className="flex flex-row items-center justify-between gap-4 w-full">
-                                    <section 
+                                    <section
                                         onClick={goPrevious}
                                         className="rounded-xl bg-sky-700 p-2 cursor-pointer flex flex-col gap-2 w-22"
                                     >
                                         <button
-                                        className="flex flex-col items-center">
+                                            className="flex flex-col items-center">
                                             <GrPrevious
                                                 size={"1.3rem"}
                                                 color="#fff"
@@ -187,7 +196,7 @@ export function ActividadModal({ data,
                                         <p className='text-white font-bold'>Anterior</p>
                                     </section>
                                     <div className='flex flex-col gap-2 items-center bg-gray-300 border-2 border-gray-300 shadow-lg py-1 px-3 rounded-xl justify-center'>
-                                        <h2 className='font-semibold'>Proyecto:  
+                                        <h2 className='font-semibold'>Proyecto:
                                             <span
                                                 className='font-bold'
                                             >{` ${data.id}`}</span>
@@ -202,7 +211,7 @@ export function ActividadModal({ data,
                                         className="rounded-xl bg-green-700 p-2 cursor-pointer flex flex-col gap-2 w-22"
                                     >
                                         <button
-                                        className="flex flex-col items-center">
+                                            className="flex flex-col items-center">
                                             <GrNext
                                                 size={"1.3rem"}
                                                 color="#fff"
@@ -252,7 +261,7 @@ export function ActividadModal({ data,
                                             }
                                         </div>
                                         {
-                                            user.nivel != 4 ? (
+                                            nivel != 4 ? (
                                                 <div className='mt-1'>
                                                     {
                                                         actAssign ? (
@@ -374,7 +383,7 @@ export function ActividadModal({ data,
                                         </form>
                                     </section>
                                     {
-                                        user.nivel != 4 ? (
+                                        nivel != 4 ? (
                                             <section>
                                                 {
                                                     bodyEdit ? (
