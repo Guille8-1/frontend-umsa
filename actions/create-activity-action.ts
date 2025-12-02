@@ -6,7 +6,6 @@ import {
   CreateActivitySchema,
 } from "@/src/schemas";
 import { verifySession } from "@/src/auth/dal";
-import { getUsersById } from "@/src/API/client-fetching-action";
 
 type ActionState = {
   errors: string[];
@@ -27,11 +26,19 @@ export async function createActivity(
     tituloActividad: formData.get("tituloAct"),
     categoriaActividad: formData.get("categoriaActividad"),
     asignadosActividadId: formData.getAll("asignadosAct"),
+    usersId: formData.getAll("ids"),
     estadoActividad: formData.get("estadoAct"),
     tipoActividad: formData.get("tipoAct"),
     oficinaOrigenActividad: formData.get("oficinaOrigenAct"),
     prioridadActividad: formData.get("proprodadActividad"),
   };
+  const userFormId = newActivity.usersId[0].toString()
+
+  const idSplitted = userFormId.split(",")
+  const actIds: number[] = []
+  for(const id of idSplitted) {
+    actIds.push(+id)
+  }
 
   const activityValidation = CreateActivitySchema.safeParse(newActivity);
 
@@ -45,28 +52,19 @@ export async function createActivity(
       success: "",
     };
   }
-  
-  const userIds: FormDataEntryValue[] = newActivity.asignadosActividadId;
-  const callingForIds: userIds[] = await getUsersById(userIds);
-
-  const gettingUserIds = callingForIds.map((forid) => {
-    const { id } = forid;
-    return id;
-  });
-
 
   const bodyRequest = {
     user: user.id,
     tituloActividad: activityValidation.data.tituloActividad,
     categoriaActividad: activityValidation.data.categoriaActividad,
-    asignadosActividadId: gettingUserIds,
+    asignadosActividadId: actIds,
     gestorActividad: userFullName,
     estadoActividad: activityValidation.data.estadoActividad,
     tipoActividad: activityValidation.data.tipoActividad,
     oficinaOrigenActividad: activityValidation.data.oficinaOrigenActividad,
     prioridadActividad: activityValidation.data.prioridadActividad,
   };
-  console.log(bodyRequest);
+
   const url = `${process.env.BACK_URL}/actividades/createactividad`;
 
   const request = await fetch(url, {

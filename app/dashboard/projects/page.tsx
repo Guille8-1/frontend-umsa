@@ -7,19 +7,35 @@ import "dotenv";
 
 
 export default async function ProjectsPage() {
+  const url: string = process.env.BACK_URL ?? '';
   const { user, token } = await verifySession();
   const toGetReport = {...user, userToken: token};
-  const url: string = process.env.BACK_URL ?? '';
+  const { admin } = user;
+  const { nivel } = user;
+  const { id } = user;
   
 
   return (
     <>
         <section className="h-auto">
             <section className='flex flex-row gap-5'>
-                <ProjectsActionsPage user={user} />
-                <ReportAction user={toGetReport}  urlSafe={url}/>
+                <ProjectsActionsPage
+                  url={url}
+                  token={token}
+                  admin={admin}
+                />
+                <ReportAction 
+                  user={toGetReport}
+                  urlSafe={url}
+                />
             </section>
-            <TableProject user={user} />
+
+            <TableProject
+              user={user}
+              token={token}
+              url={url}
+            />
+
         </section>
     </>
   );

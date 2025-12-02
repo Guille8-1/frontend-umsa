@@ -1,7 +1,7 @@
 import { useActionState, useEffect, useState, useRef } from "react";
 import Select, { MultiValue } from "react-select";
 import { motion } from "framer-motion";
-import { ProjectTypes, Comments } from "@/src/schemas";
+import { ProjectTypes, Comments, GetUsersSchema } from "@/src/schemas";
 import { createComment } from "@/actions/create-comment-action";
 import { toast } from "react-toastify";
 import { setValue } from "@/src/Store";
@@ -9,34 +9,33 @@ import { useDispatch } from "react-redux";
 import sanitizeHtml from "sanitize-html";
 import { IoClose } from "react-icons/io5";
 import { GetUserType, User } from "@/src/schemas";
-import { getDataUser } from "@/src/API/client-fetching-action";
+
 import { type userOptions } from "@/components/projects/CreateProjectForm";
 import { updateProject } from "@/actions/update-project-action";
 import { updateAssigned } from "@/actions/update-user-project-action";
 import { GrNext } from "react-icons/gr";
 import { GrPrevious } from "react-icons/gr";
 
-
-
-
 interface UserProjectModalProps {
   data: ProjectTypes | null;
   comments: Comments | null;
-  onClose: () => void;
   user: User;
-  goPrevious: () => void,
-  goNext: () => void,
-  // disablePrevious: boolean,
-  // disableNext: boolean
+  token: string;
+  url: string;
+  onClose: () => void;
+  goPrevious: () => void;
+  goNext: () => void;
 }
 
 export function ProjectModal({
   data,
   comments,
   user,
+  url,
+  token,
   onClose,
   goNext,
-  goPrevious
+  goPrevious,
 }: UserProjectModalProps) {
   const createdDate: string | null | undefined = data?.createdDate;
 
@@ -66,16 +65,13 @@ export function ProjectModal({
     ),
     fechaActualizada: new Date(
       comment.updatedDate ?? new Date(),
-    ).toLocaleString(
-      "en-GB",
-      {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      }
-    ),
+    ).toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
   }));
 
   const linkfy = (comment: string): string => {
@@ -125,13 +121,13 @@ export function ProjectModal({
   const fetchDispatch = useDispatch();
 
   const [k, setK] = useState<number>(0);
-  const update = useRef<HTMLButtonElement>(null)
+  const update = useRef<HTMLButtonElement>(null);
 
   const dispatchFunction = () => {
     setTimeout(() => {
-      update.current?.click()
+      update.current?.click();
       fetchDispatch(setValue("changed"));
-    }, 800)
+    }, 800);
   };
 
   const [edit, setEdit] = useState<boolean>(false);
@@ -143,60 +139,52 @@ export function ProjectModal({
   };
   const asignedEditValue = () => {
     setAsignadosEdit(true);
-    asignadosEdit ? setAsignadosEdit(false) : ""
-
+    asignadosEdit ? setAsignadosEdit(false) : "";
   };
-
-
-  // const statusFormal = capFirstLetter(data?.estado ?? "no value");
-
-  //const userInit = data?.asignados ?? [];
-
-  // const initEditUsr: userOptions[] = [];
-  //
-  // for (const user of userInit) {
-  //     const initU = user.split(' ')
-  //     const initFn = initU[0]
-  //     const initLn = initU[1]
-  //     const initFName = `${initFn} ${initLn}`
-  //     const objInit = {
-  //         label: initFName,
-  //         value: initFName.toLowerCase(),
-  //     }
-  //     initEditUsr.push(objInit)
-  // }
 
   const [users, setUsers] = useState<GetUserType>([]);
   const [slctEditUser, setSlctEditUser] = useState<userOptions[] | null>([]);
   const userEditOptions: userOptions[] = [];
 
-
-
   const addingEditUser = (userEdit: MultiValue<userOptions>) => {
     setSlctEditUser([...userEdit]);
-    //assignees = [...userEdit].join(", ")
   };
-  const newAssiged: userOptions[] | null = [...(slctEditUser ?? [])]
-  let liveUsers: string | undefined
+  const newAssiged: userOptions[] | null = [...(slctEditUser ?? [])];
+  let liveUsers: string | undefined;
 
   for (const name of newAssiged) {
-    const { label } = name
-    liveUsers += `${label}, `
+    const { label } = name;
+    liveUsers += `${label}, `;
   }
 
+  const userIds: number [] = [];
+  const gettingId = slctEditUser ?? [];
+
+  gettingId.map(userId => {
+    const { id } = userId;
+    userIds.push(id)
+  })
+
   useEffect(() => {
-    async function fetchEditUsers() {
-      const updateUser = await getDataUser();
-      setUsers(updateUser);
+    const usersFetching = async () => {
+      const fetchUrl: string = `${url}/users/assigned`;
+      const request = await fetch(fetchUrl, {
+        headers:{
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      const users = await request.json()
+      setUsers(users)
     }
-    fetchEditUsers().then();
+    usersFetching();
   }, []);
 
   for (const userEdit of users) {
     const { nombre, apellido } = userEdit;
     const label = `${nombre} ${apellido}`;
     const value = `${nombre} ${apellido}`.toLowerCase();
-    userEditOptions.push({ label, value });
+    const { id } = userEdit
+    userEditOptions.push({ label, value, id });
   }
 
   //funcion para la forma general de edicion proyecto
@@ -237,15 +225,20 @@ export function ProjectModal({
     if (assignState.success) {
       toast.success(assignState.success);
       setAsignadosEdit(false);
-      toast.info('Puede Tomar algunos minutos en verse los cambios en este menu de Proyecto')
-
+      toast.info(
+        "Puede Tomar algunos minutos en verse los cambios en este menu de Proyecto",
+      );
     }
   }, [assignState]);
 
   return (
     <>
       <section className="" id="governor">
-        <button className="hiddem" onClick={() => setK(k + 1)} ref={update}></button>
+        <button
+          className="hiddem"
+          onClick={() => setK(k + 1)}
+          ref={update}
+        ></button>
         {data && <div onClick={onClose} />}
         <section className="w-auto">
           <motion.aside
@@ -267,36 +260,34 @@ export function ProjectModal({
                   >
                     <div
                       onClick={goPrevious}
-                      className="rounded-xl bg-sky-700 p-2 cursor-pointer flex flex-col gap-2 w-22">
-                      <button
-                        className="flex flex-col items-center"
-                      >
-                        <GrPrevious
-                          size={"1.3rem"}
-                          color="#fff"
-                        />
+                      className="rounded-xl bg-sky-700 p-2 cursor-pointer flex flex-col gap-2 w-22"
+                    >
+                      <button className="flex flex-col items-center">
+                        <GrPrevious size={"1.3rem"} color="#fff" />
                       </button>
                       <p className="text-white font-bold">Anterior</p>
                     </div>
                     <div
-                        className={
-                          "flex flex-col gap-2 items-center bg-gray-300 border-2 border-gray-300 shadow-lg py-1 px-3 rounded-xl justify-center"
-                        }
-                      >
-                        <h2 className={"font-bold"}>PROYECTO Id: <span
-                          className="font-bold text-blue-500"
-                        >{data.id}</span></h2>
+                      className={
+                        "flex flex-col gap-2 items-center bg-gray-300 border-2 border-gray-300 shadow-lg py-1 px-3 rounded-xl justify-center"
+                      }
+                    >
+                      <h2 className={"font-bold"}>
+                        PROYECTO Id:{" "}
+                        <span className="font-bold text-blue-500">
+                          {data.id}
+                        </span>
+                      </h2>
                       <h1 className="text-center text-sky-800 rounded-2xl font-extrabold text-[15px]">
                         {data.titulo.toUpperCase()}
                       </h1>
                     </div>
                     <div
                       onClick={goNext}
-                      className="rounded-xl bg-green-700 p-2 cursor-pointer flex flex-col gap-2 w-22">
+                      className="rounded-xl bg-green-700 p-2 cursor-pointer flex flex-col gap-2 w-22"
+                    >
                       <button className="flex flex-col items-center">
-                        <GrNext
-                          size={"1.3rem"}
-                          color="#fff" />
+                        <GrNext size={"1.3rem"} color="#fff" />
                       </button>
                       <p className="text-white font-bold">Siguiente</p>
                     </div>
@@ -309,12 +300,14 @@ export function ProjectModal({
                     <IoClose size="1.5em" color={"#B51300"} />
                   </button>
                 </div>
-                <div className="flex flex-row gap-4">
-
-                </div>
+                <div className="flex flex-row gap-4"></div>
                 <div className={"w-full h-[2px] bg-gray-400 mx-auto my-4"} />
                 <section className="flex flex-row mx-2 gap-3 my-3 bg-[#D8E1E8] p-3 pr-4 rounded-lg items-center justify-between">
-                  <form noValidate action={assigDispatch} className="flex flex-row items-center justify-between  w-full">
+                  <form
+                    noValidate
+                    action={assigDispatch}
+                    className="flex flex-row items-center justify-between  w-full"
+                  >
                     <section className="flex flex-row mx-2 gap-3 items-center">
                       <section>
                         <p className="font-bold">Asignados:</p>
@@ -331,7 +324,7 @@ export function ProjectModal({
                         defaultValue={data.user.id}
                         name="userId"
                       />
-                      <section >
+                      <section>
                         {asignadosEdit ? (
                           <Select
                             name="usersEdit"
@@ -345,35 +338,42 @@ export function ProjectModal({
                             key={k}
                           />
                         ) : (
-                          <p key={k} className="font-bold text-sky-800  ">{data.asignados.join(', ')}</p>
+                          <p key={k} className="font-bold text-sky-800  ">
+                            {data.asignados.join(", ")}
+                          </p>
                         )}
                       </section>
+                      <input type="text" className="hidden" name="editUserId" defaultValue={userIds.toLocaleString()}/>
                     </section>
-                    {
-                      asignadosEdit ? (
-                        <section className="flex flex-row gap-3">
-                          <input
-                            onClick={dispatchFunction}
-                            type="submit"
-                            className="bg-sky-600 text-white px-2 p-1 rounded-md cursor-pointer"
-                            value={"Guardar"}
-                          />
-                          <button
-                            onClick={asignedEditValue}
-                            className="bg-red-700 text-white px-2 p-1 rounded-md">
-                            Cancelar
-                          </button>
-                        </section>
-                      ) : (<></>)
-                    }
+                    {asignadosEdit ? (
+                      <section className="flex flex-row gap-3">
+                        <input
+                          onClick={dispatchFunction}
+                          type="submit"
+                          className="bg-sky-600 text-white px-2 p-1 rounded-md cursor-pointer"
+                          value={"Guardar"}
+                        />
+                        <button
+                          onClick={asignedEditValue}
+                          className="bg-red-700 text-white px-2 p-1 rounded-md"
+                        >
+                          Cancelar
+                        </button>
+                      </section>
+                    ) : (
+                      <></>
+                    )}
                   </form>
-                  {asignadosEdit ? (<></>) : (
+                  {asignadosEdit ? (
+                    <></>
+                  ) : (
                     <>
                       <button
                         onClick={() => {
-                          asignedEditValue()
+                          asignedEditValue();
                         }}
-                        className="bg-sky-800 text-white px-2 p-1 rounded-md">
+                        className="bg-sky-800 text-white px-2 p-1 rounded-md"
+                      >
                         Reasignar
                       </button>
                     </>
@@ -601,12 +601,12 @@ export function ProjectModal({
                   </section>
                 </form>
                 {edit && user.nivel != 4 ? (
-
-                  <section
-                    className={"flex flex-row items-center gap-2 mt-4"}>
+                  <section className={"flex flex-row items-center gap-2 mt-4"}>
                     <button
                       onClick={editValue}
-                      className={"font-semibold bg-red-700 text-white p-1 px-4 rounded-lg"}
+                      className={
+                        "font-semibold bg-red-700 text-white p-1 px-4 rounded-lg"
+                      }
                     >
                       Cancelar
                     </button>
@@ -622,8 +622,7 @@ export function ProjectModal({
                       Editar
                     </button>
                   </section>
-                )
-                }
+                )}
                 {/* Comentarios*/}
                 <div className={"w-full h-[2px] bg-gray-400 mx-auto mt-6"} />
                 <div

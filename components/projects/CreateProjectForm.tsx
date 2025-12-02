@@ -2,7 +2,6 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { createProject } from "@/actions/create-project-action";
-import { getDataUser } from "@/src/API/client-fetching-action";
 import { GetUserType } from "@/src/schemas";
 import { toast } from "react-toastify";
 //react select
@@ -14,9 +13,10 @@ import { setValue } from "@/src/Store";
 export type userOptions = {
   label: string;
   value: string;
+  id: number;
 };
 
-export default function ProjectForm() {
+export default function ProjectForm({url, token}:{url: string, token: string}) {
   const [state, dispatch] = useActionState(createProject, {
     errors: [],
     success: "",
@@ -34,12 +34,27 @@ export default function ProjectForm() {
     setSelectedUsers([...userAdded]);
   };
 
+  const userIds: number [] = [];
+  const gettingId = selectedUsers ?? [];
+
+  gettingId.map(userId => {
+    const { id } = userId;
+    userIds.push(id)
+  })
+
   useEffect(() => {
-    async function fetchUsers() {
-      const userdata = await getDataUser();
-      setUsers(userdata);
+    const fetchUsers = async () => {
+      const urlFetch: string = `${url}/users/assigned`;
+      const request = await fetch(urlFetch,{
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      const userData: GetUserType = await request.json()
+      setUsers(userData)
+      console.log(userData)
     }
-    fetchUsers().then();
+    fetchUsers();
   }, []);
 
   useEffect(() => {
@@ -60,8 +75,8 @@ export default function ProjectForm() {
     const { nombre, apellido } = user;
     const label = `${nombre} ${apellido}`;
     const value = `${nombre} ${apellido}`.toLowerCase();
-
-    userOptions.push({ label, value });
+    const { id } = user;
+    userOptions.push({ label, value, id });
   }
 
   return (
@@ -113,6 +128,7 @@ export default function ProjectForm() {
                 isSearchable={true}
               />
             </div>
+            <input type="text" className="hidden" name="ids" defaultValue={userIds.toLocaleString()} />
             <div className="flex flex-col gap-2">
               <label className="font-bold text-lg mt-3" htmlFor="estado">
                 Estado{" "}

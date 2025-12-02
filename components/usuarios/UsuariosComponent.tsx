@@ -1,16 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { UserTable, GetUsersSchema, GetUserType } from "@/src/schemas";
+import { UserTable, UserArray } from "@/src/schemas";
 import { getUserColumns } from "@/components/usuarios/user-table/columns";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/Store/valueSlice";
-import {getAllUsers} from "@/src/API/client-fetching-action";
 import { DataUsersTable } from "@/components/usuarios/user-table/table-data"
 import { resetStatus } from "@/src/Store";
 
 
-export default function UsersComponent() {
+export default function UsersComponent({secret, token}:{secret: string, token: string}) {
     const dispatch = useDispatch();
     const [users, setUsers] = useState<UserTable[]>([]);
     const reFetch = useSelector((state: RootState) => state.value.value);
@@ -18,11 +17,18 @@ export default function UsersComponent() {
 
     useEffect(() => {
         if(reFetch === 'idle') {
-            async function userResources() {
-                const activeUsers = await getAllUsers();
-                setUsers(activeUsers);
+            const fetchUrl: string = `${secret}/users/active/users`
+            const userResources = async () => {
+                const request = fetch(fetchUrl, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                const activeUsers = (await request).json();
+                const settingUpUsers = UserArray.parse(activeUsers)
+                setUsers(settingUpUsers);
             }
-            userResources().then()
+            userResources();
         }
         dispatch(resetStatus());
     }, [reFetch, dispatch]);

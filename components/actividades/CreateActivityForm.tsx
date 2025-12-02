@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { createActivity } from "@/actions/create-activity-action";
-import { GetUserType } from "@/src/schemas";
+import { GetUserType, User } from "@/src/schemas";
 import { toast } from "react-toastify";
 //react-select
 import Select, { MultiValue } from "react-select";
@@ -13,6 +13,7 @@ import { setValue } from "@/src/Store";
 type userOptions = {
   label: string;
   value: string;
+  id: number
 };
 
 type apiTools = {
@@ -40,6 +41,14 @@ export default function ActivityForm({secret, token}:apiTools) {
   const addingUsers = (userAdded: MultiValue<userOptions>) => {
     setSelectedUsers([...userAdded]);
   };
+
+  const userIds: number [] = [];
+  const gettingId = selectedUsers ?? [];
+
+  gettingId.map(userId => {
+    const { id } = userId;
+    userIds.push(id)
+  })
 
   useEffect(() => {
     const callingUsers = async (token: string, secret: string) => {
@@ -73,8 +82,8 @@ export default function ActivityForm({secret, token}:apiTools) {
     const { nombre, apellido } = user;
     const label = `${nombre} ${apellido}`;
     const value = `${nombre} ${apellido}`;
-
-    userOptions.push({ label, value });
+    const id = user.id
+    userOptions.push({ label, value, id });
   }
 
   return (
@@ -128,6 +137,7 @@ export default function ActivityForm({secret, token}:apiTools) {
                 isSearchable={true}
               />
             </div>
+            <input type="text" name="ids" id="" className="hidden" defaultValue={userIds.toLocaleString()}/>
             <div className="flex flex-col gap-2">
               <label className="font-bold text-lg mt-3" htmlFor="estado">
                 Estado

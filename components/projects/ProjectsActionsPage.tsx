@@ -13,7 +13,7 @@ import ToastNotification from "../ui/ToastNotification";
 import ProjectForm from "./CreateProjectForm";
 
 
-export function ProjectsActionsPage({user}: {user:User} ) {
+export function ProjectsActionsPage({admin, url, token}: {admin: boolean, url: string, token: string} ) {
   //abrir y cerrar dialogo
   const [open, setOpen] = useState(false);
   const dialogRef = useRef(null);
@@ -39,7 +39,7 @@ export function ProjectsActionsPage({user}: {user:User} ) {
 
   return (
     <>
-        {user.admin && <button
+        {admin && <button
           onClick={isOpen}
           className="flex flex-row align-items-center justify-items-center gap-2 bg-sky-800 p-3 text-gray-200 rounded"
         >
@@ -86,7 +86,10 @@ export function ProjectsActionsPage({user}: {user:User} ) {
                       </section>
 
                       <section>
-                          <ProjectForm />
+                          <ProjectForm 
+                            url={url}
+                            token={token}
+                          />
                       </section>
                       <div className="mx-auto my-0 mt-5 flex justify-end">
                         <ToastNotification />

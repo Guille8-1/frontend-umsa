@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { getProjects, getCommentById } from "@/src/API/client-fetching-action";
-import { ProjectTypes, Comments, User} from "@/src/schemas";
+import { ProjectTypes, Comments, User, ProjectsFullArray} from "@/src/schemas";
 import { getColumns } from "@/components/projects/project-table/columns";
 import { DataTable } from "@/components/projects/project-table/table-data";
 import { ProjectModal } from "@/components/projects/project-table-modal/ProjectModal";
@@ -10,7 +9,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/Store/valueSlice";
 import { resetStatus } from "@/src/Store";
 
-export default function TableProject({ user }: { user: User }) {
+export default function TableProject(
+    { user, url, token }: 
+    { user: User, url: string, token: string }
+) {
+
     const dispatch = useDispatch();
     const [projects, setProjects] = useState<ProjectTypes[]>([]);
 
@@ -22,15 +25,36 @@ export default function TableProject({ user }: { user: User }) {
 
     useEffect(() => {
         if(reFetch === 'idle') {
-            async function projectResources(userId: number) {
-                const projectsOk = await getProjects(userId);
-                setProjects(projectsOk);
-                const projectId = selectedIndex?.id ?? 0;
-                const prjComents = await getCommentById(projectId);
-                setProjectComment(prjComents);
-                setSelectedIndex(selectedIndex)
+            const projectId = selectedIndex?.id ?? 0;
+            const prjResources = async (id: number) => {
+                const fetchUrl: string = `${url}/projects/user/${id}`
+                const request = await fetch(fetchUrl, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                const prjFullArray = await request.json()
+                const setUpProjectResources = ProjectsFullArray.parse(prjFullArray);
+                setProjects(setUpProjectResources);
             }
-            projectResources(user.id).then();
+            prjResources(user.id);
+
+            const commentsFetch = async (id: number) => {
+                const fetchUrl: string = `${url}/projects/comment/project/${id}`
+                const request = await fetch(fetchUrl, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                const comments = await request.json()
+                setProjectComment(comments)
+            }
+            commentsFetch(projectId);
+
+            setSelectedIndex(selectedIndex)
+            async function projectResources() {
+            }
+            projectResources().then();
         };
         dispatch(resetStatus());
     }, [user.id, reFetch, selectedIndex, dispatch, projectid]);
@@ -69,6 +93,8 @@ export default function TableProject({ user }: { user: User }) {
                     data={selectedIndex}
                     onClose={()=> setSelectedIndex(null)}
                     user={user}
+                    url={url}
+                    token={token}
                     goNext={goNext}
                     goPrevious={goPrevious}
                 />

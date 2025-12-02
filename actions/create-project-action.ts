@@ -6,7 +6,6 @@ import {
   CreateProjectSchema,
 } from "@/src/schemas";
 import { verifySession } from "@/src/auth/dal";
-import { getUsersById } from "@/src/API/client-fetching-action";
 
 export type ActionState = {
   errors: string[];
@@ -28,6 +27,7 @@ export async function createProject(
     titulo: formData.get("titulo"),
     tipoDocumento: formData.get("tipoDocumento"),
     asignadosId: formData.getAll("asignados"),
+    userId: formData.getAll('ids'),
     estado: formData.get("estado"),
     tipo: formData.get("tipo"),
     prioridad: formData.get("prioridad"),
@@ -35,7 +35,13 @@ export async function createProject(
     rutaCv: formData.get("rutaCv"),
     oficinaOrigen: formData.get("oficinaOrigen"),
   };
+  const userFormId = newProject.userId[0].toString()
 
+  const idSplitted = userFormId.split(",")
+  const prjIds: number[] = []
+  for(const id of idSplitted) {
+    prjIds.push(+id)
+  }
   const projectValidation = CreateProjectSchema.safeParse(newProject);
 
   if (!projectValidation.success) {
@@ -46,20 +52,12 @@ export async function createProject(
       success: "",
     };
   }
-  
-  const userIds: FormDataEntryValue[] = newProject.asignadosId;
-  const callingForIds: userIds[] = await getUsersById(userIds);
-  console.log(callingForIds);
-  const gettingUserIds = callingForIds.map((forid) => {
-    const { id } = forid;
-    return id;
-  });
 
   const bodyRequest = {
     user: user.id,
     titulo: projectValidation.data.titulo,
     tipoDocumento: projectValidation.data.tipoDocumento,
-    asignadosId: gettingUserIds,
+    asignadosId: prjIds,
     gestor: userFullName,
     estado: projectValidation.data.estado,
     tipo: projectValidation.data.tipo,
