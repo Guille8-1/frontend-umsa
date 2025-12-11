@@ -18,23 +18,23 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ProjectTypes } from "@/src/schemas";
 
 interface ProjectTableProps {
-  columns: ColumnDef<ProjectTypes, any>[];
+  columns: ColumnDef<ProjectTypes>[];
   data: ProjectTypes[];
-  selectedProject: ProjectTypes | null
-  onSelectedProject: (project: ProjectTypes) => void
+  selectedProject: ProjectTypes | null;
+  onSelectedProject: (project: ProjectTypes) => void;
 }
 
 export function DataTable({
   columns,
   data,
   selectedProject,
-  onSelectedProject
+  onSelectedProject,
 }: ProjectTableProps) {
   const [sorting, setSorting] = useState<SortingState>([
     { id: "id", desc: true },
@@ -42,7 +42,6 @@ export function DataTable({
   const [globalFilter, setGlobalFilter] = useState<string>("");
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(15);
-
 
   const table = useReactTable({
     data,
@@ -72,11 +71,10 @@ export function DataTable({
         pageSize,
       },
     },
-
   });
 
   return (
-    <>
+    <Suspense fallback={<p>Loading...</p>}>
       <section className="flex items-center py-4 w-52">
         <Input
           placeholder="Buscar..."
@@ -98,9 +96,9 @@ export function DataTable({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   );
                 })}
@@ -114,12 +112,14 @@ export function DataTable({
                   <TableRow
                     key={row.id}
                     onClick={() => {
-                      onSelectedProject(row.original)
+                      onSelectedProject(row.original);
+                    }}
+                    data-state={
+                      selectedProject?.id === row.original.id
+                        ? "selected"
+                        : undefined
                     }
-                    }
-                    data-state={selectedProject?.id === row.original.id ? "selected" : undefined}
-                    className="hover:bg-yellow-100 myTesting"
-
+                    className="hover:bg-yellow-100 myTesting cursor-pointer"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
@@ -163,6 +163,6 @@ export function DataTable({
           </Button>
         </div>
       </section>
-    </>
+    </Suspense>
   );
 }

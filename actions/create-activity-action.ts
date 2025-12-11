@@ -7,12 +7,9 @@ import {
 } from "@/src/schemas";
 import { verifySession } from "@/src/auth/dal";
 
-type ActionState = {
+export type ActionState = {
   errors: string[];
   success: string;
-};
-type userIds = {
-  id: number;
 };
 
 export async function createActivity(
@@ -32,12 +29,12 @@ export async function createActivity(
     oficinaOrigenActividad: formData.get("oficinaOrigenAct"),
     prioridadActividad: formData.get("proprodadActividad"),
   };
-  const userFormId = newActivity.usersId[0].toString()
+  const userFormId = newActivity.usersId[0].toString();
 
-  const idSplitted = userFormId.split(",")
-  const actIds: number[] = []
-  for(const id of idSplitted) {
-    actIds.push(+id)
+  const idSplitted = userFormId.split(",");
+  const actIds: number[] = [];
+  for (const id of idSplitted) {
+    actIds.push(+id);
   }
 
   const activityValidation = CreateActivitySchema.safeParse(newActivity);
@@ -71,7 +68,7 @@ export async function createActivity(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(bodyRequest),
   });

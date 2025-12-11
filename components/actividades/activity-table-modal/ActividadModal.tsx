@@ -1,19 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CommentsActivity, ActivityTypes, GetUserType } from "@/src/schemas";
 import { useActionState, useEffect } from "react";
 import { createCommentActivity } from "@/actions/create-comment-activity-action";
 import { toast } from "react-toastify";
 import { setValue } from "@/src/Store";
 import { useDispatch } from "react-redux";
-import { IoClose } from "react-icons/io5";
 import sanitizeHtml from "sanitize-html";
 import { type userOptions } from "@/components/projects/CreateProjectForm";
+import { CommentsActivity, ActivityTypes, GetUserType } from "@/src/schemas";
+import { IoClose } from "react-icons/io5";
 import Select, { MultiValue } from "react-select";
-import { FaEdit } from "react-icons/fa";
-import { FaSave } from "react-icons/fa";
 import { GrNext } from "react-icons/gr";
 import { GrPrevious } from "react-icons/gr";
+import { updateActivityAssigned } from "@/actions/update-user-activity-action";
+import { updateActivity } from "@/actions/update-activity-action";
 
 interface UserProjectModalProps {
   data: ActivityTypes | null;
@@ -38,6 +38,12 @@ export function ActividadModal({
 }: UserProjectModalProps) {
   const createdDate: string | null | undefined = data?.createdDate;
   const created = new Date(createdDate ?? new Date());
+  const assActvity: string = data?.asignadosActividad.join(", ") ?? '';
+  const [assAct, setAssAct] = useState<string>('');
+
+  useEffect(() => {
+    setAssAct(assActvity)
+  }, [data])
 
   const formattedDate = created.toLocaleString("en-GB", {
     day: "2-digit",
@@ -79,7 +85,7 @@ export function ActividadModal({
       /((https?:\/\/)?(www\.)?[\w-]+\.[a-z]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?)/gi;
     return comment.replace(urlRegex, (url) => {
       const href = url.startsWith("http") ? url : `https://${url}`;
-      return `<a href="${href}" target="_blank" class="text-blue-500 underline">${url}</a>`;
+      return ``;
     });
   };
 
@@ -120,7 +126,9 @@ export function ActividadModal({
   }, [state]);
   const fetchDispatch = useDispatch();
   const dispatchFunction = () => {
-    fetchDispatch(setValue("changed"));
+    setTimeout(() => {
+      fetchDispatch(setValue("changed"));
+    }, 800);
   };
 
   const [bodyEdit, setBodyEdit] = useState<boolean>(false);
@@ -135,7 +143,9 @@ export function ActividadModal({
   const [actAssign, setActAssign] = useState<boolean>(false);
   const changeAssinged = () => {
     setActAssign(true);
-    actAssign ? setActAssign(false) : "";
+    if (actAssign) {
+      setActAssign(false);
+    }
   };
 
   const [users, setUsers] = useState<GetUserType>([]);
@@ -147,6 +157,14 @@ export function ActividadModal({
   const addingEditUser = (userEdit: MultiValue<userOptions>) => {
     setSelectEditUser([...userEdit]);
   };
+
+  const userActIds: number[] = [];
+  const gettinId = selectEditUser ?? [];
+
+  gettinId.map((userId) => {
+    const { id } = userId;
+    userActIds.push(id);
+  });
 
   useEffect(() => {
     const callingUsers = async (token: string, secret: string) => {
@@ -160,14 +178,73 @@ export function ActividadModal({
       setUsers(userData);
     };
     callingUsers(token, secret);
-  }, []);
+  }, [secret, token]);
 
   for (const userEdit of users) {
     const { nombre, apellido } = userEdit;
     const label = `${nombre} ${apellido}`;
     const value = `${nombre} ${apellido}`.toLowerCase();
-    userEditOptions.push({ label, value });
+    const id = userEdit.id;
+
+    userEditOptions.push({ label, value, id });
   }
+
+  const [assignState, assigDispatch] = useActionState(updateActivityAssigned, {
+    errors: [],
+    success: "",
+  });
+
+  useEffect(() => {
+    if (assignState.errors) {
+      assignState.errors.forEach((error: string) => {
+        toast.error(error);
+      });
+    }
+  }, [assignState]);
+  useEffect(() => {
+    if (assignState.success) {
+      setActAssign(false);
+      setSelectEditUser([]);
+
+      toast.success(assignState.success);
+      const refetchModalAct = async () => {
+        const url: string = `${secret}/actividades/newusers/${data?.id}`
+        const request = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+        const newUsers = await request.json()
+        console.log('new users supposed new..', newUsers);
+        setAssAct(newUsers);
+      }
+
+      setTimeout(() => {
+        refetchModalAct();
+      }, 800)
+    }
+  }, [assignState]);
+
+  const [editActState, editActDispatch] = useActionState(updateActivity, {
+    errors: [],
+    success: "",
+  });
+
+  useEffect(() => {
+    if (editActState.errors) {
+      editActState.errors.forEach((error: string) => {
+        toast.error(error);
+      });
+    }
+  }, [editActState]);
+
+  useEffect(() => {
+    if (editActState.success) {
+      setBodyEdit(false);
+      toast.success(editActState.success);
+
+    }
+  }, [editActState]);
 
   return (
     <>
@@ -223,67 +300,83 @@ export function ActividadModal({
 
               <div className="w-full h-[2px] bg-gray-400 mt-4" />
               <div className="mt-2 flex flex-col w-auto p-4 rounded-2xl bg-slate-400">
-                <form action="">
-                  <section className="bg-gray-200 rounded-2xl px-4 py-2 flex flex-row gap-10 shadow-lg">
-                    <div>
-                      <p className="mt-2">
-                        {" "}
-                        <strong>Gestor </strong>
-                      </p>
-                      <p className="mt-2">
-                        {" "}
-                        <strong>Asignados </strong>
-                      </p>
-                    </div>
-                    <div className="flex flex-col">
-                      <p className="mt-2"> {data.gestorActividad}</p>
-                      {actAssign ? (
-                        <>
-                          <Select
-                            name="actUsers"
-                            options={userEditOptions}
-                            value={selectEditUser}
-                            onChange={addingEditUser}
-                            isMulti={true}
-                            isSearchable={true}
-                            placeholder={"Seleccionar"}
-                            className="cursor-pointer mt-1"
-                          />
-                        </>
-                      ) : (
-                        <>
-                          <p className="mt-2 text-sky-800 font-bold">
-                            {data.asignadosActividad.join(", ")}
-                          </p>
-                        </>
-                      )}
-                    </div>
+                {/*forma para cambiar los Asignados */}
+                <form noValidate action={assigDispatch}>
+                  <section className="bg-gray-200 rounded-2xl px-4 py-2 flex flex-row gap-10 shadow-lg justify-between p-2 w-full">
+                    <section className="flex flexflex-row gap-10">
+                      <div>
+                        <p className="mt-2">
+                          {" "}
+                          <strong>Gestor </strong>
+                        </p>
+                        <p className="mt-2">
+                          {" "}
+                          <strong>Asignados </strong>
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col">
+                        <input
+                          type="text"
+                          className={"hidden"}
+                          defaultValue={data.id}
+                          name="idActivity"
+                        />
+                        <input
+                          type="text"
+                          className={"hidden"}
+                          defaultValue={data.user.id}
+                          name="userActId"
+                        />
+                        <p className="mt-2"> {data.gestorActividad}</p>
+                        {actAssign ? (
+                          <>
+                            <Select
+                              name="userActEdit"
+                              options={userEditOptions}
+                              value={selectEditUser}
+                              onChange={addingEditUser}
+                              isMulti={true}
+                              isSearchable={true}
+                              placeholder={"Seleccionar"}
+                              className="cursor-pointer mt-1"
+                            />
+                            <input
+                              type="text"
+                              className="hidden"
+                              name="userActEditId"
+                              defaultValue={userActIds.toLocaleString()}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <p className="mt-2 text-sky-800 font-bold">
+                              {assAct}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </section>
                     {nivel != 4 ? (
                       <div className="mt-1">
                         {actAssign ? (
                           <>
                             <div className="flex flex-row gap-2 items-center">
                               <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  console.log(
-                                    "sending info to change the act with user data recording",
-                                  );
-                                }}
-                                className="flex flex-row gap-2 bg-sky-800 rounded-2xl px-2 py-1 text-white items-center"
+                                type="submit"
+                                onClick={dispatchFunction}
+                                className="flex flex-row gap-2 bg-sky-800 rounded-xl px-2 py-1 text-white items-center font-semibold"
                               >
-                                Reasignar
-                                <FaSave size={"1em"} />
+                                Reasignar{" "}
                               </button>
-                              <p
-                                className="text-red-500 font-bold cursor-pointer"
-                                onClick={()=>{
-                                  changeAssinged()
-                                  console.log('testing')
+                              <button
+                                className="bg-red-500 cursor-pointer text-white px-2 py-1 rounded-xl font-semibold"
+                                onClick={() => {
+                                  changeAssinged();
                                 }}
                               >
                                 Cancelar
-                              </p>
+                              </button>
                             </div>
                           </>
                         ) : (
@@ -293,10 +386,9 @@ export function ActividadModal({
                                 e.preventDefault();
                                 changeAssinged();
                               }}
-                              className="flex flex-row gap-2 bg-sky-800 rounded-2xl px-2 py-1 text-white"
+                              className="flex flex-row gap-2 bg-sky-800 rounded-lg px-2 py-1 text-white"
                             >
-                              <p>Editar Asingados</p>
-                              <FaEdit size={"1.2em"} />
+                              Editar
                             </button>
                           </>
                         )}
@@ -338,13 +430,25 @@ export function ActividadModal({
                         <strong>Ultima Actualizacion : </strong>
                       </p>
                     </section>
-                    <form action="">
+                    <form noValidate action={editActDispatch}>
+                      <input
+                        type="text"
+                        defaultValue={data.id}
+                        name="idActivity"
+                        className="hidden"
+                      />
+                      <input
+                        type="text"
+                        defaultValue={data.user.id}
+                        name="idUser"
+                        className="hidden"
+                      />
                       <section className="text-base flex flex-col">
                         {bodyEdit ? (
                           <select
                             id={"estado"}
                             className={"mt-[12px] rounded-sm px-1 bg-white"}
-                            name={"estadoEdit"}
+                            name={"estadoActEdit"}
                           >
                             <option value="" defaultChecked>
                               Seleccionar
@@ -359,7 +463,7 @@ export function ActividadModal({
                           <select
                             id={"avance"}
                             className={"w-auto rounded-sm px-1 bg-white mt-2"}
-                            name="avanceEdit"
+                            name="avanceActEdit"
                           >
                             <option value="" defaultChecked>
                               Seleccionar
@@ -379,7 +483,7 @@ export function ActividadModal({
                           <select
                             id={"avance"}
                             className={"w-auto rounded-sm px-1 bg-white mt-2"}
-                            name="avanceEdit"
+                            name="prioridadAct"
                           >
                             <option value="urgente">Urgente</option>
                             <option value="media">Media</option>
@@ -395,40 +499,41 @@ export function ActividadModal({
                         <p className="mt-2">
                           {lastUpdated?.fechaCreacion ?? formattedDate}
                         </p>
+                        {nivel != 4 ? (
+                          <section className="flex flex-row mt-2 gap-5 items-center ml-0">
+                            {bodyEdit ? (
+                              <>
+                                <button
+                                  type="submit"
+                                  className="rounded-lg px-2 py-1 text-white bg-sky-800 mt-2"
+                                >
+                                  Guardar
+                                </button>
+                                <button
+                                  onClick={switchEdit}
+                                  className="bg-red-500 font-bold text-white mt-2 rounded-lg px-2 py-1"
+                                >
+                                  Cancelar
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  switchEdit();
+                                }}
+                                className="rounded-lg px-2 py-1 text-white bg-sky-800 mt-2"
+                              >
+                                Editar
+                              </button>
+                            )}
+                          </section>
+                        ) : (
+                          <></>
+                        )}
                       </section>
                     </form>
                   </section>
-                  {nivel != 4 ? (
-                    <section>
-                      {bodyEdit ? (
-                        <section className="flex flex-row mt-2 gap-5">
-                          <button
-                            onClick={() => {
-                              console.log("sending edit activity data");
-                            }}
-                            className="flex flex-row text-white bg-sky-800 p-2 rounded-lg"
-                          >
-                            Guardar
-                          </button>
-                          <button
-                            onClick={switchEdit}
-                            className="text-red-400 font-bold"
-                          >
-                            cancelar
-                          </button>
-                        </section>
-                      ) : (
-                        <button
-                          onClick={switchEdit}
-                          className="rounded-lg p-2 text-white bg-sky-800 mt-2"
-                        >
-                          Editar
-                        </button>
-                      )}
-                    </section>
-                  ) : (
-                    <></>
-                  )}
                 </section>
               </div>
 

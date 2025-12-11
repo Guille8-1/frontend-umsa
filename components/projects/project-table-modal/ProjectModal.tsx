@@ -1,7 +1,7 @@
 import { useActionState, useEffect, useState, useRef } from "react";
 import Select, { MultiValue } from "react-select";
 import { motion } from "framer-motion";
-import { ProjectTypes, Comments, GetUsersSchema } from "@/src/schemas";
+import { ProjectTypes, Comments } from "@/src/schemas";
 import { createComment } from "@/actions/create-comment-action";
 import { toast } from "react-toastify";
 import { setValue } from "@/src/Store";
@@ -135,11 +135,16 @@ export function ProjectModal({
 
   const editValue = () => {
     setEdit(true);
-    edit ? setEdit(false) : "";
+    if (edit) {
+      setEdit(false);
+    }
   };
+
   const asignedEditValue = () => {
     setAsignadosEdit(true);
-    asignadosEdit ? setAsignadosEdit(false) : "";
+    if (asignadosEdit) {
+      setAsignadosEdit(false);
+    }
   };
 
   const [users, setUsers] = useState<GetUserType>([]);
@@ -149,41 +154,34 @@ export function ProjectModal({
   const addingEditUser = (userEdit: MultiValue<userOptions>) => {
     setSlctEditUser([...userEdit]);
   };
-  const newAssiged: userOptions[] | null = [...(slctEditUser ?? [])];
-  let liveUsers: string | undefined;
 
-  for (const name of newAssiged) {
-    const { label } = name;
-    liveUsers += `${label}, `;
-  }
-
-  const userIds: number [] = [];
+  const userIds: number[] = [];
   const gettingId = slctEditUser ?? [];
 
-  gettingId.map(userId => {
+  gettingId.map((userId) => {
     const { id } = userId;
-    userIds.push(id)
-  })
+    userIds.push(id);
+  });
 
   useEffect(() => {
     const usersFetching = async () => {
       const fetchUrl: string = `${url}/users/assigned`;
       const request = await fetch(fetchUrl, {
-        headers:{
+        headers: {
           Authorization: `Bearer ${token}`,
-        }
+        },
       });
-      const users = await request.json()
-      setUsers(users)
-    }
+      const users = await request.json();
+      setUsers(users);
+    };
     usersFetching();
-  }, []);
+  }, [token, url]);
 
   for (const userEdit of users) {
     const { nombre, apellido } = userEdit;
     const label = `${nombre} ${apellido}`;
     const value = `${nombre} ${apellido}`.toLowerCase();
-    const { id } = userEdit
+    const { id } = userEdit;
     userEditOptions.push({ label, value, id });
   }
 
@@ -204,9 +202,11 @@ export function ProjectModal({
 
   useEffect(() => {
     if (editState.success) {
-      toast.success(editState.success);
+      toast.success(`Proyecto ${editState.success} Actualizado`);
+      setEdit(false);
+      toast.info("Puedo tomar algunos minutos para verse los cambios.");
     }
-  }, [editState, edit]);
+  }, [editState]);
 
   const [assignState, assigDispatch] = useActionState(updateAssigned, {
     errors: [],
@@ -225,9 +225,7 @@ export function ProjectModal({
     if (assignState.success) {
       toast.success(assignState.success);
       setAsignadosEdit(false);
-      toast.info(
-        "Puede Tomar algunos minutos en verse los cambios en este menu de Proyecto",
-      );
+      toast.info("Puedo tomar algunos minutos para verse los cambios.");
     }
   }, [assignState]);
 
@@ -343,7 +341,12 @@ export function ProjectModal({
                           </p>
                         )}
                       </section>
-                      <input type="text" className="hidden" name="editUserId" defaultValue={userIds.toLocaleString()}/>
+                      <input
+                        type="text"
+                        className="hidden"
+                        name="editUserId"
+                        defaultValue={userIds.toLocaleString()}
+                      />
                     </section>
                     {asignadosEdit ? (
                       <section className="flex flex-row gap-3">
@@ -369,9 +372,7 @@ export function ProjectModal({
                   ) : (
                     <>
                       <button
-                        onClick={() => {
-                          asignedEditValue();
-                        }}
+                        onClick={asignedEditValue}
                         className="bg-sky-800 text-white px-2 p-1 rounded-md"
                       >
                         Reasignar
@@ -383,7 +384,7 @@ export function ProjectModal({
                   className="flex flex-col items-top bg-[#D8E1E8] rounded-2xl justify-between items-center shadow-xl border-2 border-[#D8E1E8]"
                   action={editDispatch}
                 >
-                  <section className="pb-4 px-4 mt-2 w-full">
+                  <section className="px-4 mt-2 w-full">
                     <section className={"w-full mx-auto"}>
                       {/* Estado */}
                       {/* Body Form */}
@@ -402,6 +403,12 @@ export function ProjectModal({
                           defaultValue={data.id}
                           name="idProject"
                         />
+                        <input
+                          type="number"
+                          className={"hidden"}
+                          defaultValue={user.id}
+                          name="idUser"
+                        />
                         <div className={"ml-12"}>
                           {edit ? (
                             <select
@@ -409,7 +416,7 @@ export function ProjectModal({
                               className={"mt-[10px] rounded-sm px-1 bg-white"}
                               name={"estadoEdit"}
                             >
-                              <option value="" defaultChecked>
+                              <option value="" defaultChecked disabled>
                                 Seleccionar
                               </option>
                               <option value="activo">Activo</option>
@@ -437,7 +444,7 @@ export function ProjectModal({
                               className={"w-auto rounded-sm px-1 bg-white"}
                               name="avanceEdit"
                             >
-                              <option value="" defaultChecked>
+                              <option value="" defaultChecked disabled>
                                 Seleccionar
                               </option>
                               <option value="20">20</option>
@@ -532,7 +539,7 @@ export function ProjectModal({
                               }
                               name="prioridadEdit"
                             >
-                              <option value="" defaultChecked>
+                              <option value="" defaultChecked disabled>
                                 Seleccionar
                               </option>
                               <option value="urgente">Urgente</option>
@@ -573,11 +580,11 @@ export function ProjectModal({
                       </section>
                       {/*Aqui tendria que ir el form del resto del proyecto*/}
                       {user.nivel != 4 ? (
-                        <section className={"my-4"}>
+                        <section className={"my-3"}>
                           {edit ? (
                             <section
                               className={
-                                "flex flex-row items-center gap-8 text-lg"
+                                "flex flex-row items-center gap-4 text-lg"
                               }
                             >
                               <button
@@ -588,6 +595,14 @@ export function ProjectModal({
                                 }
                               >
                                 Guardar
+                              </button>
+                              <button
+                                onClick={editValue}
+                                className={
+                                  "font-semibold bg-red-700 text-white p-1 px-4 rounded-lg"
+                                }
+                              >
+                                Cancelar
                               </button>
                             </section>
                           ) : (
@@ -601,16 +616,7 @@ export function ProjectModal({
                   </section>
                 </form>
                 {edit && user.nivel != 4 ? (
-                  <section className={"flex flex-row items-center gap-2 mt-4"}>
-                    <button
-                      onClick={editValue}
-                      className={
-                        "font-semibold bg-red-700 text-white p-1 px-4 rounded-lg"
-                      }
-                    >
-                      Cancelar
-                    </button>
-                  </section>
+                  <></>
                 ) : (
                   <section className={"flex flex-row items-center gap-2 mt-4"}>
                     <button
@@ -631,7 +637,8 @@ export function ProjectModal({
                 >
                   <div className="flex flex-col">
                     <h2>
-                      <strong>Comentarios Proyecto : </strong>
+                      Comentarios en Proyecto:
+                      <strong> {data.titulo.toUpperCase()}</strong>
                     </h2>
                   </div>
                   {newComment.length > 0 ? (
