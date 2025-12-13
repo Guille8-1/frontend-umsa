@@ -37,6 +37,14 @@ export function ProjectModal({
   goNext,
   goPrevious,
 }: UserProjectModalProps) {
+
+  const prjAssignees: string = data?.asignados.join(", ") ?? '';
+  const [prjAssg, setPrjAssg] = useState<string>(prjAssignees);
+
+  useEffect(() => {
+    setPrjAssg(prjAssignees);
+  }, [data]);
+
   const createdDate: string | null | undefined = data?.createdDate;
 
   const created = new Date(createdDate ?? new Date());
@@ -225,7 +233,6 @@ export function ProjectModal({
     if (assignState.success) {
       toast.success(assignState.success);
       setAsignadosEdit(false);
-      toast.info("Puedo tomar algunos minutos para verse los cambios.");
     }
   }, [assignState]);
 
@@ -337,7 +344,7 @@ export function ProjectModal({
                           />
                         ) : (
                           <p key={k} className="font-bold text-sky-800  ">
-                            {data.asignados.join(", ")}
+                            {prjAssg}
                           </p>
                         )}
                       </section>

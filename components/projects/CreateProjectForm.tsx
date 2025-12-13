@@ -16,7 +16,7 @@ export type userOptions = {
   id: number;
 };
 
-export default function ProjectForm({url, token}:{url: string, token: string}) {
+export default function ProjectForm({ url, token }: { url: string, token: string }) {
   const [state, dispatch] = useActionState(createProject, {
     errors: [],
     success: "",
@@ -34,7 +34,7 @@ export default function ProjectForm({url, token}:{url: string, token: string}) {
     setSelectedUsers([...userAdded]);
   };
 
-  const userIds: number [] = [];
+  const userIds: number[] = [];
   const gettingId = selectedUsers ?? [];
 
   gettingId.map(userId => {
@@ -45,14 +45,13 @@ export default function ProjectForm({url, token}:{url: string, token: string}) {
   useEffect(() => {
     const fetchUsers = async () => {
       const urlFetch: string = `${url}/users/assigned`;
-      const request = await fetch(urlFetch,{
+      const request = await fetch(urlFetch, {
         headers: {
           Authorization: `Bearer ${token}`,
         }
       });
       const userData: GetUserType = await request.json()
       setUsers(userData)
-      console.log(userData)
     }
     fetchUsers();
   }, []);
@@ -142,9 +141,9 @@ export default function ProjectForm({url, token}:{url: string, token: string}) {
                 <option value="" defaultChecked>
                   Seleccionar
                 </option>
-                <option value="activo">Activo</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="mora">En Mora</option>
+                <option value="Activo">Activo</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Mora">En Mora</option>
               </select>
             </div>
             <div className="flex flex-col gap-2">
@@ -177,9 +176,9 @@ export default function ProjectForm({url, token}:{url: string, token: string}) {
                 <option value="" defaultChecked>
                   Seleccionar
                 </option>
-                <option value="urgente">Urgente</option>
-                <option value="media">Media</option>
-                <option value="baja">Baja</option>
+                <option value="Urgente">Urgente</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
               </select>
             </div>
           </div>

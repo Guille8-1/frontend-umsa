@@ -14,6 +14,8 @@ import { GrNext } from "react-icons/gr";
 import { GrPrevious } from "react-icons/gr";
 import { updateActivityAssigned } from "@/actions/update-user-activity-action";
 import { updateActivity } from "@/actions/update-activity-action";
+import { Oval } from 'react-loader-spinner';
+import { colorValueProgress, stringPriority, stringStatus } from "@/components/projects/project-table/tableLogic";
 
 interface UserProjectModalProps {
   data: ActivityTypes | null;
@@ -24,6 +26,13 @@ interface UserProjectModalProps {
   goNext: () => void;
   token: string;
   secret: string;
+}
+
+type fetchActForm = {
+  estado: string,
+  avance: number,
+  prioridad: string,
+  fetched: boolean
 }
 
 export function ActividadModal({
@@ -41,8 +50,18 @@ export function ActividadModal({
   const assActvity: string = data?.asignadosActividad.join(", ") ?? '';
   const [assAct, setAssAct] = useState<string>('');
 
+  const updateBody: fetchActForm = {
+    estado: data?.estadoActividad ?? '',
+    avance: data?.avanceActividad ?? 0,
+    prioridad: data?.prioridadActividad ?? '',
+    fetched: true
+  }
+  const [loadAss, setLoadAss] = useState<boolean>(true);
+  const [body, setBody] = useState<fetchActForm>(updateBody);
+
   useEffect(() => {
-    setAssAct(assActvity)
+    setAssAct(assActvity);
+    setBody(updateBody);
   }, [data])
 
   const formattedDate = created.toLocaleString("en-GB", {
@@ -128,7 +147,7 @@ export function ActividadModal({
   const dispatchFunction = () => {
     setTimeout(() => {
       fetchDispatch(setValue("changed"));
-    }, 800);
+    }, 1200);
   };
 
   const [bodyEdit, setBodyEdit] = useState<boolean>(false);
@@ -204,6 +223,7 @@ export function ActividadModal({
   useEffect(() => {
     if (assignState.success) {
       setActAssign(false);
+      setLoadAss(false);
       setSelectEditUser([]);
 
       toast.success(assignState.success);
@@ -215,13 +235,12 @@ export function ActividadModal({
           }
         })
         const newUsers = await request.json()
-        console.log('new users supposed new..', newUsers);
         setAssAct(newUsers);
+        setLoadAss(true)
       }
-
       setTimeout(() => {
         refetchModalAct();
-      }, 800)
+      }, 1200)
     }
   }, [assignState]);
 
@@ -242,10 +261,42 @@ export function ActividadModal({
     if (editActState.success) {
       setBodyEdit(false);
       toast.success(editActState.success);
+      setBody({
+        estado: '',
+        avance: 0,
+        prioridad: '',
+        fetched: false
+      })
 
+      const newDataBody = async () => {
+        const url: string = `${secret}/actividades/edited/${data?.id}`
+        const request = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const newBody: fetchActForm = await request.json();
+
+        setBody({
+          estado: newBody.estado,
+          avance: newBody.avance,
+          prioridad: newBody.prioridad,
+          fetched: true
+        })
+      }
+
+      setTimeout(() => {
+        newDataBody()
+      }, 1200)
     }
   }, [editActState]);
 
+  const colorValue = data?.avanceActividad ?? 0;
+  const returnedColor = colorValueProgress(colorValue);
+  const priorityReturnedColor = data?.prioridadActividad ?? '';
+  const returnedPriorityColor = stringPriority(priorityReturnedColor);
+  const statusValue = data?.estadoActividad ?? '';
+  const colorStatus = stringStatus(statusValue);
   return (
     <>
       {data && <div onClick={onClose} />}
@@ -350,9 +401,9 @@ export function ActividadModal({
                           </>
                         ) : (
                           <>
-                            <p className="mt-2 text-sky-800 font-bold">
-                              {assAct}
-                            </p>
+                            <div className="mt-2 text-sky-800 font-bold">
+                              {loadAss ? assAct : <Oval width={'20'} height={'20'} color="#075985" />}
+                            </div>
                           </>
                         )}
                       </div>
@@ -453,11 +504,11 @@ export function ActividadModal({
                             <option value="" defaultChecked>
                               Seleccionar
                             </option>
-                            <option value="activo">Activo</option>
-                            <option value="cerrado">Cerrado</option>
+                            <option value="Activo">Activo</option>
+                            <option value="Cerrado">Cerrado</option>
                           </select>
                         ) : (
-                          <p className="mt-2">{data.estadoActividad}</p>
+                          <div className="mt-2 flex flex-row gap-4 font-bold" style={{ color: colorStatus }}>{body.fetched ? body.estado : <Oval width={'20'} height={'20'} color="#075985" />}</div>
                         )}
                         {bodyEdit ? (
                           <select
@@ -469,14 +520,18 @@ export function ActividadModal({
                               Seleccionar
                             </option>
                             <option value="20">20</option>
+                            <option value="30">30</option>
                             <option value="40">40</option>
+                            <option value="50">50</option>
                             <option value="60">60</option>
+                            <option value="70">70</option>
                             <option value="80">80</option>
                             <option value="90">90</option>
+                            <option value="100">100</option>
                             <option value="completado">Completado</option>
                           </select>
                         ) : (
-                          <p className="mt-2">{data.avanceActividad} %</p>
+                          <div className="mt-2 flex flex-row gap-4 font-extrabold" style={{ color: returnedColor }}>{body.fetched ? body.avance : <Oval width={'20'} height={'20'} color="#075985" />} %</div>
                         )}
                         <p className="mt-2">{data.diasActivoActividad}</p>
                         {bodyEdit ? (
@@ -485,18 +540,18 @@ export function ActividadModal({
                             className={"w-auto rounded-sm px-1 bg-white mt-2"}
                             name="prioridadAct"
                           >
-                            <option value="urgente">Urgente</option>
-                            <option value="media">Media</option>
-                            <option value="baja">Baja</option>
+                            <option value="Urgente">Urgente</option>
+                            <option value="Media">Media</option>
+                            <option value="Baja">Baja</option>
                           </select>
                         ) : (
-                          <p className="mt-2">{data.prioridadActividad}</p>
+                          <div className="mt-2 font-bold" style={{ color: returnedPriorityColor }}>{body.fetched ? body.prioridad : <Oval width={'20'} height={'20'} color="#075985" />}</div>
                         )}
-                        <p className="mt-2">{data.oficinaOrigenActividad}</p>
+                        <div className="mt-2 flex flex-row gap-4">{data.oficinaOrigenActividad} </div>
                         <p className="mt-2">
                           {data.categoriaActividad ?? "Sin Categoria"}
                         </p>
-                        <p className="mt-2">
+                        <p className="mt-2 font-bold">
                           {lastUpdated?.fechaCreacion ?? formattedDate}
                         </p>
                         {nivel != 4 ? (
@@ -571,7 +626,7 @@ export function ActividadModal({
                     </div>
                   ))
                 ) : (
-                  <p>Aun No existen Comentarios en Esta Actividad</p>
+                  <p className="font-bold">Aun no Existen Comentarios</p>
                 )}
               </div>
               <section className="w-full">

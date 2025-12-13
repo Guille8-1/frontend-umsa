@@ -21,7 +21,7 @@ type apiTools = {
   secret: string
 }
 
-export default function ActivityForm({secret, token}:apiTools) {
+export default function ActivityForm({ secret, token }: apiTools) {
   const [state, dispatch] = useActionState(createActivity, {
     errors: [],
     success: "",
@@ -42,7 +42,7 @@ export default function ActivityForm({secret, token}:apiTools) {
     setSelectedUsers([...userAdded]);
   };
 
-  const userIds: number [] = [];
+  const userIds: number[] = [];
   const gettingId = selectedUsers ?? [];
 
   gettingId.map(userId => {
@@ -58,9 +58,11 @@ export default function ActivityForm({secret, token}:apiTools) {
           Authorization: `Bearer ${token}`
         },
       });
-      const userData = await request.json()
+      const userData = await request.json();
+      console.log(userData);
       setUsers(userData);
     }
+    console.log('array users', users);
     callingUsers(token, secret);
   }, [])
 
@@ -137,7 +139,7 @@ export default function ActivityForm({secret, token}:apiTools) {
                 isSearchable={true}
               />
             </div>
-            <input type="text" name="ids" id="" className="hidden" defaultValue={userIds.toLocaleString()}/>
+            <input type="text" name="ids" id="" className="hidden" defaultValue={userIds.toLocaleString()} />
             <div className="flex flex-col gap-2">
               <label className="font-bold text-lg mt-3" htmlFor="estado">
                 Estado
@@ -150,9 +152,9 @@ export default function ActivityForm({secret, token}:apiTools) {
                 <option value="" defaultChecked>
                   Seleccionar
                 </option>
-                <option value="activo">Activo</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="mora">En Mora</option>
+                <option value="Activo">Activo</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Mora">En Mora</option>
               </select>
             </div>
             <div className="flex flex-col gap-2">
@@ -183,9 +185,9 @@ export default function ActivityForm({secret, token}:apiTools) {
                 <option value="" defaultChecked>
                   Seleccionar
                 </option>
-                <option value="urgente">Urgente</option>
-                <option value="media">Media</option>
-                <option value="baja">Baja</option>
+                <option value="Urgente">Urgente</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
               </select>
             </div>
             <div className="flex flex-col gap-2">
@@ -193,11 +195,11 @@ export default function ActivityForm({secret, token}:apiTools) {
                 Oficina de Origen
               </label>
               <input
-                  id="oficinaOrigenAct"
-                  type="text"
-                  placeholder="Oficina de Origen"
-                  className="w-full border border-gray-300 p-3 rounded-lg appearance-none"
-                  name="oficinaOrigenAct"
+                id="oficinaOrigenAct"
+                type="text"
+                placeholder="Oficina de Origen"
+                className="w-full border border-gray-300 p-3 rounded-lg appearance-none"
+                name="oficinaOrigenAct"
               />
             </div>
           </div>

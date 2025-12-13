@@ -65,7 +65,7 @@ export const InteractiveMenu = ({ owner }: { owner: boolean }) => {
                         before:transition-all before:duration-300
                         hover:before:w-full hover:before:left-0
                         cursor-pointer
-                        text-white ${selected === "usuarios" ? "bg-blue-600" : ""}`}
+                        text-white ${selected === "usuarios" ? "bg-sky-500" : ""}`}
               >
                 <section className="text-white font-semibold py-2 hover:text-sky-200 text-lg transition duration-300 flex flex-row gap-3 items-center">
                   <FaUserFriends size="1.2em" />
@@ -87,7 +87,7 @@ export const InteractiveMenu = ({ owner }: { owner: boolean }) => {
                           before:transition-all before:duration-300
                           hover:before:w-full hover:before:left-0
                           cursor-pointer
-                          text-white ${selected === title ? "bg-blue-600" : ""}`}
+                          text-white ${selected === title ? "bg-sky-800" : ""}`}
               >
                 <button className="">
                   <section className="text-white font-semibold py-2 hover:text-sky-200 text-lg transition duration-300 flex flex-row gap-3 items-center">
