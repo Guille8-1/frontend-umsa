@@ -32,16 +32,15 @@ export const UserSchema = z.object({
 });
 
 export const UserTokenSchema = z.object({
-    id: z.number(),
-    name: z.string(),
-    lastName: z.string(),
-    nivel: z.number(),
-    admin: z.boolean(),
-    accountOwner: z.boolean(),
-    changedPw: z.boolean(),
-    userToken: z.string(),
-})
-
+  id: z.number(),
+  name: z.string(),
+  lastName: z.string(),
+  nivel: z.number(),
+  admin: z.boolean(),
+  accountOwner: z.boolean(),
+  changedPw: z.boolean(),
+  userToken: z.string(),
+});
 
 export const UserSchemaTable = z.object({
   id: z.number(),
@@ -55,8 +54,9 @@ export const CreateProjectSchema = z.object({
   tipoDocumento: z
     .string()
     .min(1, { message: "Tipo de Documento Obligatorio" }),
-  asignadosId: z.
-  array(z.string().min(1, { message: "Al menos 1 Asignado es Obligatorio" })).max(4,{message:'Numero de Asignados no Permitido'}),
+  asignadosId: z
+    .array(z.string().min(1, { message: "Al menos 1 Asignado es Obligatorio" }))
+    .max(4, { message: "Numero de Asignados no Permitido" }),
   estado: z.string().min(1, { message: "Estado no Valido" }),
   tipo: z.string().min(1, { message: "Tipo no Valido" }),
   prioridad: z.string().min(1, { message: "Prioridad no Valida" }),
@@ -69,25 +69,38 @@ export const CreateProjectSchema = z.object({
 
 export const UpdateProjectAssigness = z.object({
   id: z.string(),
-  editAssing: z.
-  array(z.string().min(1, { message: "Al menos 1 Asignado es Obligatorio" })).max(4,{message:'Numero de Asignados no Permitido'}),
+  editAssing: z
+    .array(z.string().min(1, { message: "Al menos 1 Asignado es Obligatorio" }))
+    .max(4, { message: "Numero de Asignados no Permitido" }),
   userId: z.string(),
-})
+});
+
 export const UpdateProjectsSchema = z.object({
   id: z.string(),
   estado: z.string().min(1, { message: "Estado no Valido" }),
-  avance: z.string().min(1, {message:'Avance requerido'}),
+  avance: z.string().min(1, { message: "Avance requerido" }),
   documento: z.string(),
   prioridad: z.string().min(3, { message: "Prioridad no Valida" }),
-})
+  idUser: z.string(),
+});
+
+export const UpdateActivityAssignees = z.object({
+  id: z.string(),
+  editActAssignee: z
+    .array(z.string().min(1, { message: "Al menos 1 asignado es Obligatorio" }))
+    .max(4, { message: "Numero de Asignados no Permitido" }),
+  idEditUser: z
+    .array(z.string()),
+  userId: z.string(),
+});
 
 export const UpdateActivitySchema = z.object({
   id: z.string(),
   estado: z.string().min(1, { message: "Estado no Valido" }),
-  avance: z.string().min(1, {message:'Avance requerido'}),
-  prioridad: z.string().min(3, {message: "Prioridad no Valida"})
-})
-
+  avance: z.string().min(1, { message: "Avance Requerido" }),
+  prioridad: z.string().min(3, { message: "Prioridad no Valida" }),
+  idUser: z.string(),
+});
 
 export const ProjectSchemaResponse = z.object({
   id: z.number(),
@@ -168,11 +181,11 @@ export const CommentsActivity = z.array(
   }),
 );
 export const CreateActivitySchema = z.object({
-  tituloActividad: z.string().min(5, { message: "titulo demsadio corto" }),
-  categoriaActividad: z.string(),
-  asignadosActividadId: z.
-        array(z.string())
-        .max(4, {message:'Numero de Asignados no Permitido'}),
+  tituloActividad: z.string().min(5, { message: "Titulo Demsadio Corto" }),
+  categoriaActividad: z.string().min(1, { message: "Categoria Necesaria" }),
+  asignadosActividadId: z
+    .array(z.string())
+    .max(4, { message: "Numero de Asignados no Permitido" }),
   estadoActividad: z.string().min(1, { message: "Estado No Valido" }),
   tipoActividad: z.string().min(1, { message: "Tipo de Actividad No Valida" }),
   oficinaOrigenActividad: z.string().min(1, { message: "Oficina No Valida" }),
@@ -183,8 +196,8 @@ export const ActivitySchemaResponse = z.object({
   id: z.number(),
   tituloActividad: z.string(),
   asignadosActividad: z.array(z.string()),
-  categoriaActividad: z.nullable(z.string()),
-  asignadosActividadId: z.nullable(z.array(z.number())),
+  categoriaActividad: z.string(),
+  asignadosActividadId: z.array(z.number()),
   gestorActividad: z.string(),
   estadoActividad: z.string(),
   diasActivoActividad: z.number(),
@@ -229,8 +242,6 @@ export const ChangedPwSchema = z
     message: "Los passwords ingresados no coinciden",
     path: ["repeat_password"],
   });
-
-
 
 //exported types
 export type ActivityArrayType = z.infer<typeof ActivityArray>;

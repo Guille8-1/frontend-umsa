@@ -2,7 +2,7 @@
 
 import { User } from "@/src/schemas";
 import { TiWarning } from "react-icons/ti";
-import { StatsDashboard } from './StatsDashboard'
+import { StatsDashboard } from "./StatsDashboard";
 import { useRef } from "react";
 import Link from "next/link";
 
@@ -22,7 +22,7 @@ export default function DashboardStart({ user }: { user: User }) {
             <div className="flex flex-row items-center gap-2">
               <TiWarning className="text-[#D32F2F] w-8 h-8" />
               <h3 className="font-semibold text-sky-800 text-lg">
-                Antes de continuar, debe restablecer la contraseña
+                de continuar, debe restablecer la contraseña
               </h3>
             </div>
 
@@ -49,7 +49,7 @@ export default function DashboardStart({ user }: { user: User }) {
       </div>
       <section>
         <StatsDashboard />
-      </section>    
+      </section>
     </>
   );
 }

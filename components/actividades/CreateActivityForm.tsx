@@ -2,8 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { createActivity } from "@/actions/create-activity-action";
-import { getDataUser } from "@/src/API/client-fetching-action";
-import { GetUserType } from "@/src/schemas";
+import { GetUserType, User } from "@/src/schemas";
 import { toast } from "react-toastify";
 //react-select
 import Select, { MultiValue } from "react-select";
@@ -14,9 +13,15 @@ import { setValue } from "@/src/Store";
 type userOptions = {
   label: string;
   value: string;
+  id: number
 };
 
-export default function ActivityForm() {
+type apiTools = {
+  token: string,
+  secret: string
+}
+
+export default function ActivityForm({ secret, token }: apiTools) {
   const [state, dispatch] = useActionState(createActivity, {
     errors: [],
     success: "",
@@ -37,12 +42,28 @@ export default function ActivityForm() {
     setSelectedUsers([...userAdded]);
   };
 
+  const userIds: number[] = [];
+  const gettingId = selectedUsers ?? [];
+
+  gettingId.map(userId => {
+    const { id } = userId;
+    userIds.push(id)
+  })
+
   useEffect(() => {
-    async function fetchUsers() {
-      const userdata = await getDataUser();
-      setUsers(userdata);
+    const callingUsers = async (token: string, secret: string) => {
+      const url: string = `${secret}/users/assigned`;
+      const request = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+      });
+      const userData = await request.json();
+      console.log(userData);
+      setUsers(userData);
     }
-    fetchUsers().then();
+    console.log('array users', users);
+    callingUsers(token, secret);
   }, [])
 
   useEffect(() => {
@@ -63,8 +84,8 @@ export default function ActivityForm() {
     const { nombre, apellido } = user;
     const label = `${nombre} ${apellido}`;
     const value = `${nombre} ${apellido}`;
-
-    userOptions.push({ label, value });
+    const id = user.id
+    userOptions.push({ label, value, id });
   }
 
   return (
@@ -118,6 +139,7 @@ export default function ActivityForm() {
                 isSearchable={true}
               />
             </div>
+            <input type="text" name="ids" id="" className="hidden" defaultValue={userIds.toLocaleString()} />
             <div className="flex flex-col gap-2">
               <label className="font-bold text-lg mt-3" htmlFor="estado">
                 Estado
@@ -130,9 +152,9 @@ export default function ActivityForm() {
                 <option value="" defaultChecked>
                   Seleccionar
                 </option>
-                <option value="activo">Activo</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="en_mora">En Mora</option>
+                <option value="Activo">Activo</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="Mora">En Mora</option>
               </select>
             </div>
             <div className="flex flex-col gap-2">
@@ -163,9 +185,9 @@ export default function ActivityForm() {
                 <option value="" defaultChecked>
                   Seleccionar
                 </option>
-                <option value="urgente">Urgente</option>
-                <option value="media">Media</option>
-                <option value="baja">Baja</option>
+                <option value="Urgente">Urgente</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
               </select>
             </div>
             <div className="flex flex-col gap-2">
@@ -173,11 +195,11 @@ export default function ActivityForm() {
                 Oficina de Origen
               </label>
               <input
-                  id="oficinaOrigenAct"
-                  type="text"
-                  placeholder="Oficina de Origen"
-                  className="w-full border border-gray-300 p-3 rounded-lg appearance-none"
-                  name="oficinaOrigenAct"
+                id="oficinaOrigenAct"
+                type="text"
+                placeholder="Oficina de Origen"
+                className="w-full border border-gray-300 p-3 rounded-lg appearance-none"
+                name="oficinaOrigenAct"
               />
             </div>
           </div>

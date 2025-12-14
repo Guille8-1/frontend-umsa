@@ -6,14 +6,10 @@ import {
   CreateActivitySchema,
 } from "@/src/schemas";
 import { verifySession } from "@/src/auth/dal";
-import { getUsersById } from "@/src/API/client-fetching-action";
 
-type ActionState = {
+export type ActionState = {
   errors: string[];
   success: string;
-};
-type userIds = {
-  id: number;
 };
 
 export async function createActivity(
@@ -27,21 +23,21 @@ export async function createActivity(
     tituloActividad: formData.get("tituloAct"),
     categoriaActividad: formData.get("categoriaActividad"),
     asignadosActividadId: formData.getAll("asignadosAct"),
+    usersId: formData.getAll("ids"),
     estadoActividad: formData.get("estadoAct"),
     tipoActividad: formData.get("tipoAct"),
     oficinaOrigenActividad: formData.get("oficinaOrigenAct"),
     prioridadActividad: formData.get("proprodadActividad"),
   };
+  const userFormId = newActivity.usersId[0].toString();
+
+  const idSplitted = userFormId.split(",");
+  const actIds: number[] = [];
+  for (const id of idSplitted) {
+    actIds.push(+id);
+  }
 
   const activityValidation = CreateActivitySchema.safeParse(newActivity);
-
-  const userIds: FormDataEntryValue[] = newActivity.asignadosActividadId;
-  const callingForIds: userIds[] = await getUsersById(userIds);
-
-  const gettingUserIds = callingForIds.map((forid) => {
-    const { id } = forid;
-    return id;
-  });
 
   if (!activityValidation.success) {
     const errors = activityValidation.error.errors.map(
@@ -58,7 +54,7 @@ export async function createActivity(
     user: user.id,
     tituloActividad: activityValidation.data.tituloActividad,
     categoriaActividad: activityValidation.data.categoriaActividad,
-    asignadosActividadId: gettingUserIds,
+    asignadosActividadId: actIds,
     gestorActividad: userFullName,
     estadoActividad: activityValidation.data.estadoActividad,
     tipoActividad: activityValidation.data.tipoActividad,
@@ -72,7 +68,7 @@ export async function createActivity(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(bodyRequest),
   });
