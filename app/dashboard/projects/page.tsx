@@ -8,19 +8,19 @@ import "dotenv";
 
 export default async function ProjectsPage() {
   const { user, token } = await verifySession();
-  const toGetReport = {...user, userToken: token};
+  const toGetReport = { ...user, userToken: token };
   const url: string = process.env.BACK_URL ?? '';
-  
+  console.log('testing git push from mac to test results');
 
   return (
     <>
-        <section className="h-auto">
-            <section className='flex flex-row gap-5'>
-                <ProjectsActionsPage user={user} />
-                <ReportAction user={toGetReport}  urlSafe={url}/>
-            </section>
-            <TableProject user={user} />
+      <section className="h-auto">
+        <section className='flex flex-row gap-5'>
+          <ProjectsActionsPage user={user} />
+          <ReportAction user={toGetReport} urlSafe={url} />
         </section>
+        <TableProject user={user} />
+      </section>
     </>
   );
 }
