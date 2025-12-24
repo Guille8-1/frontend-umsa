@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, useRef } from "react";
 import { createProject } from "@/actions/create-project-action";
 import { GetUserType } from "@/src/schemas";
 import { toast } from "react-toastify";
@@ -9,6 +9,8 @@ import Select, { MultiValue } from "react-select";
 //redux
 import { useDispatch } from "react-redux";
 import { setValue } from "@/src/Store";
+import { TiWarning } from "react-icons/ti";
+import Link from "next/link";
 
 export type userOptions = {
   label: string;
@@ -41,6 +43,8 @@ export default function ProjectForm({ url, token }: { url: string, token: string
     const { id } = userId;
     userIds.push(id)
   })
+  const tokenRef = useRef<HTMLDialogElement>(null);
+
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -50,6 +54,13 @@ export default function ProjectForm({ url, token }: { url: string, token: string
           Authorization: `Bearer ${token}`,
         }
       });
+
+      const isValid: boolean = request.ok ? true : false;
+
+      if (!isValid) {
+        tokenRef.current?.showModal();
+      }
+
       const userData: GetUserType = await request.json()
       setUsers(userData)
     }
@@ -80,6 +91,26 @@ export default function ProjectForm({ url, token }: { url: string, token: string
 
   return (
     <>
+      <section>
+        <dialog className="p-7 rounded-md" ref={tokenRef}>
+          <section className="flex flex-col gap-5">
+            <div className="flex flex-row items-center gap-2">
+              <TiWarning className="text-[#D32F2F] w-8 h-8" />
+              <h3 className="font-semibold text-sky-800 text-lg">
+                Session Expirada
+              </h3>
+            </div>
+
+            <Link
+              href={"auth/login"}
+              autoFocus={false}
+              className="text-center p-2 w-1/2 mx-auto border-2 border-solid border-sky-700 bg-slate-100 rounded-md"
+            >
+              Token Expirado - Log in
+            </Link>
+          </section>
+        </dialog>
+      </section>
       <form className="mt-5 space-y-3 " noValidate action={dispatch}>
         <div className="flex flex-row gap-5 justify-center">
           <div className="w-screen">

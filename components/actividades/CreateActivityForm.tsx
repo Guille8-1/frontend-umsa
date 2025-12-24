@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useState, useRef } from "react";
 import { createActivity } from "@/actions/create-activity-action";
 import { GetUserType, User } from "@/src/schemas";
 import { toast } from "react-toastify";
@@ -9,6 +9,8 @@ import Select, { MultiValue } from "react-select";
 //redux
 import { useDispatch } from "react-redux";
 import { setValue } from "@/src/Store";
+import { TiWarning } from "react-icons/ti";
+import Link from "next/link";
 
 type userOptions = {
   label: string;
@@ -49,6 +51,7 @@ export default function ActivityForm({ secret, token }: apiTools) {
     const { id } = userId;
     userIds.push(id)
   })
+  const tokenRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const callingUsers = async (token: string, secret: string) => {
@@ -58,11 +61,15 @@ export default function ActivityForm({ secret, token }: apiTools) {
           Authorization: `Bearer ${token}`
         },
       });
+      const isValid: boolean = request.ok ? true : false
+
+      if (isValid) {
+        tokenRef.current?.showModal();
+      }
+
       const userData = await request.json();
-      console.log(userData);
       setUsers(userData);
     }
-    console.log('array users', users);
     callingUsers(token, secret);
   }, [])
 
@@ -90,6 +97,26 @@ export default function ActivityForm({ secret, token }: apiTools) {
 
   return (
     <>
+      <section>
+        <dialog className="p-7 rounded-md" ref={tokenRef}>
+          <section className="flex flex-col gap-5">
+            <div className="flex flex-row items-center gap-2">
+              <TiWarning className="text-[#D32F2F] w-8 h-8" />
+              <h3 className="font-semibold text-sky-800 text-lg">
+                Session Expirada
+              </h3>
+            </div>
+            <Link
+              href={"auth/login"}
+              autoFocus={false}
+              className="text-center p-2 w-1/2 mx-auto border-2 border-solid border-sky-700 bg-slate-100 rounded-md"
+            >
+              Token Expirado - Log in
+            </Link>
+          </section>
+        </dialog>
+      </section>
+
       <form className="mt-5 space-y-3 " noValidate action={dispatch}>
         <div className="flex flex-row gap-5 justify-center">
           <div className="w-3/4">

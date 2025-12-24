@@ -104,7 +104,7 @@ export function ActividadModal({
       /((https?:\/\/)?(www\.)?[\w-]+\.[a-z]{2,}(\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?)/gi;
     return comment.replace(urlRegex, (url) => {
       const href = url.startsWith("http") ? url : `https://${url}`;
-      return ``;
+      return `<a href="${href}" target="_blank" class="text-blue-500 underline">${url}</a>`;
     });
   };
 
@@ -598,7 +598,7 @@ export function ActividadModal({
                 className="mt-5 flex flex-col gap-3 p-4 rounded-2xl bg-slate-300"
               >
                 <div className="flex flex-col">
-                  <h2 className="text-[18px]">
+                  <h2 className="text-[16px]">
                     <strong>Seguimiento: </strong>
                   </h2>
                 </div>
@@ -611,7 +611,7 @@ export function ActividadModal({
                             <strong>{comment.autor}</strong>
                           </p>
                           <div
-                            className="text-[19px]"
+                            className="text-[16px]"
                             dangerouslySetInnerHTML={{
                               __html: links(comment.comentario),
                             }}

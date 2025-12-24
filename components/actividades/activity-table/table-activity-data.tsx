@@ -10,26 +10,25 @@ import { RootState } from "@/src/Store/valueSlice";
 import { resetStatus } from "@/src/Store";
 import CircularIndeterminate from "@/components/projects/project-table/top-progress";
 
+type tableActivityType = {
+  nivel: number;
+  id: number;
+  token: string;
+  secret: string;
+}
+
 export default function TableActivity({
   nivel,
   id,
   token,
   secret,
-}: {
-  nivel: number;
-  id: number;
-  token: string;
-  secret: string;
-}) {
+}: tableActivityType) {
   const dispatch = useDispatch();
   const [activity, setActivity] = useState<ActivityTypes[]>([]);
 
   const reFetch = useSelector((state: RootState) => state.value.value);
-  const [selectedIndex, setSelectedIndex] = useState<ActivityTypes | null>(
-    null,
-  );
-  const [activityComment, setActivityComment] =
-    useState<CommentsActivity | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<ActivityTypes | null>(null);
+  const [activityComment, setActivityComment] = useState<CommentsActivity | null>(null);
   const activityId = selectedIndex?.id ?? 0;
   const [loading, setLoading] = useState<boolean>(true);
   const [loader, setLoader] = useState<boolean>(true);

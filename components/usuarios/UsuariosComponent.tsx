@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/Store/valueSlice";
 import { DataUsersTable } from "@/components/usuarios/user-table/table-data"
 import { resetStatus } from "@/src/Store";
+import { TiPlus } from "react-icons/ti";
+import Link from 'next/link';
 
 
 export default function UsersComponent({ secret, token }: { secret: string, token: string }) {
@@ -38,7 +40,12 @@ export default function UsersComponent({ secret, token }: { secret: string, toke
   return (
     <>
       <section className={"bg-slate-100"}>
-        <h1 className="text-xl font-semibold mt-6">Usuarios Activos</h1>
+        <section className="flex flex-row align-items-center justify-items-center gap-2 bg-sky-800 p-3 text-gray-200 rounded w-44 text-lg">
+          <TiPlus size="1.1em" className="mt-0.5" />
+          <Link href='/create-user'>
+            Crear Usuarios
+          </Link>
+        </section>
         <DataUsersTable columns={columns} data={users} />
       </section>
     </>

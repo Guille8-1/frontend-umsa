@@ -15,6 +15,8 @@ import { updateProject } from "@/actions/update-project-action";
 import { updateAssigned } from "@/actions/update-user-project-action";
 import { GrNext } from "react-icons/gr";
 import { GrPrevious } from "react-icons/gr";
+import { stringPriority, stringStatus, colorValueProgress } from "../project-table/tableLogic";
+import { Oval } from 'react-loader-spinner';
 
 interface UserProjectModalProps {
   data: ProjectTypes | null;
@@ -25,6 +27,14 @@ interface UserProjectModalProps {
   onClose: () => void;
   goPrevious: () => void;
   goNext: () => void;
+}
+
+type prjBody = {
+  estado: string,
+  avance: number,
+  tipoDocumento: string,
+  prioridad: string,
+  fetched: boolean
 }
 
 export function ProjectModal({
@@ -38,11 +48,23 @@ export function ProjectModal({
   goPrevious,
 }: UserProjectModalProps) {
 
-  const prjAssignees: string = data?.asignados.join(", ") ?? '';
-  const [prjAssg, setPrjAssg] = useState<string>(prjAssignees);
+  const [loadAss, setLoadAss] = useState<boolean>(true);
+
+  const updatePrjBody: prjBody = {
+    estado: data?.estado ?? '',
+    avance: data?.avance ?? 0,
+    tipoDocumento: data?.tipoDocumento ?? '',
+    prioridad: data?.prioridad ?? '',
+    fetched: true
+  }
+
+  const [body, setBody] = useState<prjBody>(updatePrjBody);
+  const [assProject, setAssProject] = useState<string>();
+  const assigneesProject: string = data?.asignados.join(", ") ?? '';
 
   useEffect(() => {
-    setPrjAssg(prjAssignees);
+    setAssProject(assigneesProject);
+    setBody(updatePrjBody);
   }, [data]);
 
   const createdDate: string | null | undefined = data?.createdDate;
@@ -55,6 +77,7 @@ export function ProjectModal({
     hour: "2-digit",
     minute: "2-digit",
   });
+
 
   const newComment = comments ?? [];
   const newCommnets = newComment.map((comment) => ({
@@ -212,7 +235,32 @@ export function ProjectModal({
     if (editState.success) {
       toast.success(`Proyecto ${editState.success} Actualizado`);
       setEdit(false);
-      toast.info("Puedo tomar algunos minutos para verse los cambios.");
+      setBody({
+        estado: '',
+        avance: 0,
+        tipoDocumento: '',
+        prioridad: '',
+        fetched: false
+      });
+      const newPrjData = async () => {
+        const fetchUrl = `${url}/projects/new/body/${data?.id}`
+        const request = await fetch(fetchUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const newBodyRequested: prjBody = await request.json();
+        setBody({
+          estado: newBodyRequested.estado,
+          avance: newBodyRequested.avance,
+          tipoDocumento: newBodyRequested.tipoDocumento,
+          prioridad: newBodyRequested.prioridad,
+          fetched: true
+        });
+      }
+      setTimeout(() => {
+        newPrjData();
+      }, 800)
     }
   }, [editState]);
 
@@ -233,8 +281,31 @@ export function ProjectModal({
     if (assignState.success) {
       toast.success(assignState.success);
       setAsignadosEdit(false);
+      setLoadAss(false)
+      setSlctEditUser([]);
+      const newAssingeesPrj = async () => {
+        const backendUrl: string = `${url}/projects/assigned/newusers/${data?.id}`;
+        const request = await fetch(backendUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        const newPrjAssignees = await request.json();
+        setAssProject(newPrjAssignees);
+        setLoadAss(true);
+      }
+      setTimeout(() => {
+        newAssingeesPrj()
+      }, 800)
     }
   }, [assignState]);
+
+  const colorValue = data?.avance ?? 0;
+  const returnedColor = colorValueProgress(colorValue);
+  const priorityReturnedColor = data?.prioridad ?? '';
+  const returnedPriorityColor = stringPriority(priorityReturnedColor);
+  const statusValue = data?.estado ?? '';
+  const colorStatus = stringStatus(statusValue);
 
   return (
     <>
@@ -305,105 +376,17 @@ export function ProjectModal({
                     <IoClose size="1.5em" color={"#B51300"} />
                   </button>
                 </div>
-                <div className="flex flex-row gap-4"></div>
-                <div className={"w-full h-[2px] bg-gray-400 mx-auto my-4"} />
-                <section className="flex flex-row mx-2 gap-3 my-3 bg-[#D8E1E8] p-3 pr-4 rounded-lg items-center justify-between">
-                  <form
-                    noValidate
-                    action={assigDispatch}
-                    className="flex flex-row items-center justify-between  w-full"
-                  >
-                    <section className="flex flex-row mx-2 gap-3 items-center">
-                      <section>
-                        <p className="font-bold">Asignados:</p>
-                      </section>
-                      <input
-                        type="text"
-                        className={"hidden"}
-                        defaultValue={data.id}
-                        name="idProject"
-                      />
-                      <input
-                        type="text"
-                        className={"hidden"}
-                        defaultValue={data.user.id}
-                        name="userId"
-                      />
-                      <section>
-                        {asignadosEdit ? (
-                          <Select
-                            name="usersEdit"
-                            options={userEditOptions}
-                            value={slctEditUser}
-                            onChange={addingEditUser}
-                            className="w-full border border-gray-300 p-3 rounded-lg"
-                            placeholder="Asignar Usuarios"
-                            isMulti={true}
-                            isSearchable={true}
-                            key={k}
-                          />
-                        ) : (
-                          <p key={k} className="font-bold text-sky-800  ">
-                            {prjAssg}
-                          </p>
-                        )}
-                      </section>
-                      <input
-                        type="text"
-                        className="hidden"
-                        name="editUserId"
-                        defaultValue={userIds.toLocaleString()}
-                      />
-                    </section>
-                    {asignadosEdit ? (
-                      <section className="flex flex-row gap-3">
-                        <input
-                          onClick={dispatchFunction}
-                          type="submit"
-                          className="bg-sky-600 text-white px-2 p-1 rounded-md cursor-pointer"
-                          value={"Guardar"}
-                        />
-                        <button
-                          onClick={asignedEditValue}
-                          className="bg-red-700 text-white px-2 p-1 rounded-md"
-                        >
-                          Cancelar
-                        </button>
-                      </section>
-                    ) : (
-                      <></>
-                    )}
-                  </form>
-                  {asignadosEdit ? (
-                    <></>
-                  ) : (
-                    <>
-                      <button
-                        onClick={asignedEditValue}
-                        className="bg-sky-800 text-white px-2 p-1 rounded-md"
-                      >
-                        Reasignar
-                      </button>
-                    </>
-                  )}
-                </section>
-                <form
-                  className="flex flex-col items-top bg-[#D8E1E8] rounded-2xl justify-between items-center shadow-xl border-2 border-[#D8E1E8]"
-                  action={editDispatch}
-                >
-                  <section className="px-4 mt-2 w-full">
-                    <section className={"w-full mx-auto"}>
-                      {/* Estado */}
-                      {/* Body Form */}
-                      <section
-                        className={"flex flex-row mt-2 gap-10 items-center"}
-                      >
-                        <div className={""}>
-                          <p className="mt-2">
-                            {" "}
-                            <strong>Estado : </strong>{" "}
-                          </p>
-                        </div>
+                <section className="flex flex-col bg-gray-500 p-4 mt-4 rounded-xl">
+                  <section className="flex flex-row gap-3 mb-3 bg-[#D8E1E8] pr-4 rounded-lg items-center justify-between">
+                    <form
+                      noValidate
+                      action={assigDispatch}
+                      className="flex flex-row items-center justify-between w-full"
+                    >
+                      <section className="flex flex-row mx-2 gap-3 items-center">
+                        <section>
+                          <p className="font-bold">Asignados:</p>
+                        </section>
                         <input
                           type="text"
                           className={"hidden"}
@@ -411,236 +394,319 @@ export function ProjectModal({
                           name="idProject"
                         />
                         <input
-                          type="number"
+                          type="text"
                           className={"hidden"}
-                          defaultValue={user.id}
-                          name="idUser"
+                          defaultValue={data.user.id}
+                          name="userId"
                         />
-                        <div className={"ml-12"}>
-                          {edit ? (
-                            <select
-                              id={"estado"}
-                              className={"mt-[10px] rounded-sm px-1 bg-white"}
-                              name={"estadoEdit"}
-                            >
-                              <option value="" defaultChecked disabled>
-                                Seleccionar
-                              </option>
-                              <option value="activo">Activo</option>
-                              <option value="cerrado">Cerrado</option>
-                            </select>
-                          ) : (
-                            <p className="mt-2">{data.estado}</p>
-                          )}
-                        </div>
-                      </section>
-                      {/* Avance */}
-                      <section
-                        className={"flex flex-row mt-2 gap-10 items-center"}
-                      >
-                        <div className={""}>
-                          <p className="">
-                            {" "}
-                            <strong>Avance : </strong>
-                          </p>
-                        </div>
-                        <div className={"ml-12"}>
-                          {edit ? (
-                            <select
-                              id={"avance"}
-                              className={"w-auto rounded-sm px-1 bg-white"}
-                              name="avanceEdit"
-                            >
-                              <option value="" defaultChecked disabled>
-                                Seleccionar
-                              </option>
-                              <option value="20">20</option>
-                              <option value="40">40</option>
-                              <option value="60">60</option>
-                              <option value="80">80</option>
-                              <option value="90">90</option>
-                              <option value="completado">Completado</option>
-                            </select>
-                          ) : (
-                            <p className="">{data.avance} %</p>
-                          )}
-                        </div>
-                      </section>
-                      {/* Dias Activo */}
-                      <section className={"flex flex-row gap-4"}>
-                        <div className={""}>
-                          <p className="mt-2">
-                            {" "}
-                            <strong>Dias Activo : </strong>
-                          </p>
-                        </div>
-                        <div className={"ml-10"}>
-                          <p className="mt-2">{data.diasActivo}</p>
-                        </div>
-                      </section>
-                      {/* Ruta Cv */}
-                      <section className={"flex flex-row gap-10"}>
-                        <div className={"m-0"}>
-                          <p className="mt-2">
-                            {" "}
-                            <strong>Ruta CV: </strong>
-                          </p>
-                        </div>
-                        <div className={"w-auto ml-10"}>
-                          <p className="mt-2">{data.rutaCv}</p>
-                        </div>
-                      </section>
-                      {/* Numero Cite */}
-                      <section className={"flex flex-row"}>
-                        <div>
-                          <p className="mt-2">
-                            {" "}
-                            <strong>Numero CITE : </strong>
-                          </p>
-                        </div>
-                        <div className={"ml-10"}>
-                          <p className="mt-2">{data.citeNumero}</p>
-                        </div>
-                      </section>
-                      {/* Tipo Documento */}
-                      <section className={"flex flex-row"}>
-                        <div>
-                          <p className="mt-2">
-                            {" "}
-                            <strong>
-                              Documento o<br /> Actividad :{" "}
-                            </strong>
-                          </p>
-                        </div>
-                        <div className={"ml-12"}>
-                          {edit ? (
-                            <input
-                              defaultValue={data.tipoDocumento}
-                              type={"text"}
-                              min={15}
-                              max={100}
-                              className={
-                                "rounded-sm px-1 bg-white w-auto h-auto mt-[10px]"
-                              }
-                              name="documentoEdit"
+                        <section>
+                          {asignadosEdit ? (
+                            <Select
+                              name="usersEdit"
+                              options={userEditOptions}
+                              value={slctEditUser}
+                              onChange={addingEditUser}
+                              className="w-full border border-gray-3005 p-2 rounded-lg"
+                              placeholder="Asignar Usuarios"
+                              isMulti={true}
+                              isSearchable={true}
+                              key={k}
                             />
                           ) : (
-                            <p className="mt-2">{data.tipoDocumento}</p>
+                            <div key={k} className="font-bold text-sky-800 p-4">
+                              {loadAss ? assProject : <Oval width={'20'} height={'20'} color="#075985" />}
+                            </div>
                           )}
-                        </div>
+                        </section>
+                        <input
+                          type="text"
+                          className="hidden"
+                          name="editUserId"
+                          defaultValue={userIds.toLocaleString()}
+                        />
                       </section>
-                      {/* Prioridad */}
-                      <section className={"flex flex-row"}>
-                        <div>
-                          <p className="mt-2">
-                            {" "}
-                            <strong>Prioridad : </strong>
-                          </p>
-                        </div>
-                        <div className={"ml-[75px]"}>
-                          {edit ? (
-                            <select
-                              id={"prioridad"}
-                              className={
-                                "w-auto mt-[10px] rounded-sm px-1 bg-white"
-                              }
-                              name="prioridadEdit"
-                            >
-                              <option value="" defaultChecked disabled>
-                                Seleccionar
-                              </option>
-                              <option value="urgente">Urgente</option>
-                              <option value="media">Media</option>
-                              <option value="baja">Baja</option>
-                            </select>
-                          ) : (
-                            <p className="mt-2">{data.prioridad}</p>
-                          )}
-                        </div>
-                      </section>
+                      {asignadosEdit ? (
+                        <section className="flex flex-row gap-3">
+                          <input
+                            onClick={dispatchFunction}
+                            type="submit"
+                            className="bg-sky-600 text-white px-2 p-1 rounded-md cursor-pointer"
+                            value={"Reasignar"}
+                          />
+                          <button
+                            onClick={asignedEditValue}
+                            className="bg-red-700 text-white px-2 p-1 rounded-md"
+                          >
+                            Cancelar
+                          </button>
+                        </section>
+                      ) : (
+                        <></>
+                      )}
+                    </form>
+                    {asignadosEdit ? (
+                      <></>
+                    ) : (
+                      <>
+                        <button
+                          onClick={asignedEditValue}
+                          className="bg-sky-800 text-white px-2 p-1 rounded-md"
+                        >
+                          Reasignar
+                        </button>
+                      </>
+                    )}
+                  </section>
+                  <section className="flex flex-row bg-[#D8E1E8] p-4 rounded-lg gap-4">
+                    <section className="flex flex-col gap-2 w-auto h-auto">
+                      <div>
+                        <p className="">
+                          {" "}
+                          <strong>Estado : </strong>{" "}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="">
+                          {" "}
+                          <strong>Avance : </strong>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="">
+                          {" "}
+                          <strong>Dias Activo : </strong>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="">
+                          {" "}
+                          <strong>Ruta CV: </strong>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="">
+                          {" "}
+                          <strong>Numero CITE : </strong>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="">
+                          {" "}
+                          <strong>
+                            Documento o Actividad :{" "}
+                          </strong>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="">
+                          {" "}
+                          <strong>Prioridad : </strong>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="">
+                          {" "}
+                          <strong>Oficina de Origen : </strong>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="">
+                          {" "}
+                          <strong>Ultima Actualizacion : </strong>
+                        </p>
+                      </div>
+                    </section>
 
-                      {/* Ofinica Origen */}
-                      <section className={"flex flex-row"}>
-                        <div>
-                          <p className="mt-2">
-                            {" "}
-                            <strong>Oficina de Origen : </strong>
-                          </p>
-                        </div>
-                        <div className={"ml-6"}>
-                          <p className="mt-2">{data.oficinaOrigen}</p>
-                        </div>
-                      </section>
-                      {/* Ultima Act */}
-                      <section className={"flex flex-row"}>
-                        <div>
-                          <p className="mt-2">
-                            {" "}
-                            <strong>Ultima Actualizacion : </strong>
-                          </p>
-                        </div>
-                        <div className={"ml-6"}>
-                          <p className="mt-2">
-                            {lastUpdated?.fechaCreacion ?? formattedDate}
-                          </p>
-                        </div>
-                      </section>
-                      {/*Aqui tendria que ir el form del resto del proyecto*/}
-                      {user.nivel != 4 ? (
-                        <section className={"my-3"}>
-                          {edit ? (
-                            <section
-                              className={
-                                "flex flex-row items-center gap-4 text-lg"
-                              }
-                            >
-                              <button
-                                type="submit"
-                                onClick={dispatchFunction}
-                                className={
-                                  "flex flex-row items-center bg-sky-700 text-white p-1 rounded-md px-3"
-                                }
-                              >
-                                Guardar
-                              </button>
-                              <button
-                                onClick={editValue}
-                                className={
-                                  "font-semibold bg-red-700 text-white p-1 px-4 rounded-lg"
-                                }
-                              >
-                                Cancelar
-                              </button>
+                    <form
+                      className="flex flex-col items-top rounded-2xl justify-start w-auto"
+                      action={editDispatch}
+                    >
+                      <section className="px-4 w-full">
+                        <section className={"mx-auto flex flex-col gap-2"}>
+                          {/* Estado */}
+                          {/* Body Form */}
+                          <section>
+                            <input
+                              type="text"
+                              className={"hidden"}
+                              defaultValue={data.id}
+                              name="idProject"
+                            />
+                            <input
+                              type="number"
+                              className={"hidden"}
+                              defaultValue={user.id}
+                              name="idUser"
+                            />
+                            <div>
+                              {edit ? (
+                                <select
+                                  id={"estado"}
+                                  className={"rounded-sm px-1 bg-white"}
+                                  name={"estadoEdit"}
+                                >
+                                  <option value="" defaultChecked disabled>
+                                    Seleccionar
+                                  </option>
+                                  <option value="activo">Activo</option>
+                                  <option value="cerrado">Cerrado</option>
+                                </select>
+                              ) : (
+                                <div className="font-extrabold" style={{ color: colorStatus }}>{body.fetched ? body.estado : <Oval width={'20'} height={'20'} color="#075985" />}</div>
+                              )}
+                            </div>
+                          </section>
+                          {/* Avance */}
+                          <section>
+                            <div>
+                              {edit ? (
+                                <select
+                                  id={"avance"}
+                                  className={"w-auto rounded-sm px-1 bg-white"}
+                                  name="avanceEdit"
+                                >
+                                  <option value="" defaultChecked disabled>
+                                    Seleccionar
+                                  </option>
+                                  <option value="20">20</option>
+                                  <option value="40">40</option>
+                                  <option value="60">60</option>
+                                  <option value="80">80</option>
+                                  <option value="90">90</option>
+                                  <option value="completado">Completado</option>
+                                </select>
+                              ) : (
+                                <div className="font-black" style={{ color: returnedColor }}>{body.fetched ? body.avance : <Oval width={'20'} height={'20'} color="#075985" />} %</div>
+                              )}
+                            </div>
+                          </section>
+                          {/* Dias Activo */}
+                          <section>
+                            <div>
+                              <p className="">{data.diasActivo}</p>
+                            </div>
+                          </section>
+                          {/* Ruta Cv */}
+                          <section>
+                            <div>
+                              <p className="">{data.rutaCv}</p>
+                            </div>
+                          </section>
+                          {/* Numero Cite */}
+                          <section>
+                            <div>
+                              <p className="">{data.citeNumero}</p>
+                            </div>
+                          </section>
+                          {/* Tipo Documento */}
+                          <section className={"flex flex-row"}>
+                            <div>
+                              {edit ? (
+                                <input
+                                  defaultValue={data.tipoDocumento}
+                                  type={"text"}
+                                  min={15}
+                                  max={100}
+                                  className={
+                                    "rounded-sm px-1 bg-white"
+                                  }
+                                  name="documentoEdit"
+                                />
+                              ) : (
+                                <div className="">{body.fetched ? body.tipoDocumento : <Oval width={'20'} height={'20'} color="#075985" />}</div>
+                              )}
+                            </div>
+                          </section>
+                          {/* Prioridad */}
+                          <section className={"flex flex-row"}>
+                            <div>
+                              {edit ? (
+                                <select
+                                  id={"prioridad"}
+                                  className={
+                                    "w-auto rounded-sm px-1 bg-white"
+                                  }
+                                  name="prioridadEdit"
+                                >
+                                  <option value="" defaultChecked disabled>
+                                    Seleccionar
+                                  </option>
+                                  <option value="urgente">Urgente</option>
+                                  <option value="media">Media</option>
+                                  <option value="baja">Baja</option>
+                                </select>
+                              ) : (
+                                <div className="font-extrabold" style={{ color: returnedPriorityColor }}>{body.fetched ? body.prioridad : <Oval width={'20'} height={'20'} color="#075985" />}</div>
+                              )}
+                            </div>
+                          </section>
+                          {/* Ofinica Origen */}
+                          <section className={"flex flex-row"}>
+                            <div>
+                              <p className="">{data.oficinaOrigen}</p>
+                            </div>
+                          </section>
+                          {/* Ultima Act */}
+                          <section className={"flex flex-row"}>
+                            <div className={"font-bold"}>
+                              <p className="">
+                                {lastUpdated?.fechaCreacion ?? formattedDate}
+                              </p>
+                            </div>
+                          </section>
+                          {/*Aqui tendria que ir el form del resto del proyecto*/}
+                          {user.nivel != 4 ? (
+                            <section>
+                              {edit ? (
+                                <section
+                                  className={"flex flex-row items-center gap-4 mt-2"}
+                                >
+                                  <button
+                                    type="submit"
+                                    onClick={dispatchFunction}
+                                    className={"font-semibold bg-sky-700 text-white p-1 px-4 rounded-lg"}
+                                  >
+                                    Guardar
+                                  </button>
+                                  <button
+                                    onClick={editValue}
+                                    className={"font-semibold bg-red-700 text-white p-1 px-4 rounded-lg"}
+                                  >
+                                    Cancelar
+                                  </button>
+                                </section>
+                              ) : (
+                                <></>
+                              )}
                             </section>
                           ) : (
                             <></>
                           )}
                         </section>
-                      ) : (
+                      </section>
+                      {edit && user.nivel != 4 ? (
                         <></>
+                      ) : (
+                        <section className="mx-auto">
+                          <button
+                            onClick={editValue}
+                            className={
+                              "bg-sky-800 rounded-lg p-1 px-3 font-semibold text-white mt-2 text-center"
+                            }
+                          >
+                            Editar
+                          </button>
+                        </section>
                       )}
-                    </section>
+                    </form>
                   </section>
-                </form>
-                {edit && user.nivel != 4 ? (
-                  <></>
-                ) : (
-                  <section className={"flex flex-row items-center gap-2 mt-4"}>
-                    <button
-                      onClick={editValue}
-                      className={
-                        "flex bg-sky-800 rounded-lg p-1 px-3 font-semibold text-white"
-                      }
-                    >
-                      Editar
-                    </button>
-                  </section>
-                )}
+                </section>
+
                 {/* Comentarios*/}
                 <div className={"w-full h-[2px] bg-gray-400 mx-auto mt-6"} />
                 <div
                   key={state.success}
-                  className=" flex flex-col gap-3 mt-2 bg-gray-100 rounded-2xl"
+                  className=" flex flex-col gap-3  bg-gray-100 rounded-2xl"
                 >
                   <div className="flex flex-col">
                     <h2>

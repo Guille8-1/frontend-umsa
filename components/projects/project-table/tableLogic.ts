@@ -31,6 +31,8 @@ export function stringPriority(value: string) {
       return "#005075";
     case "Baja":
       return "#005075";
+    case "cerrado":
+      return "#B00707";
     case "Cerrado":
       return "#B00707";
     default:
@@ -53,6 +55,8 @@ export function stringStatus(value: string) {
     case "Activo":
       return "#0BA300";
     case "Cerrado":
+      return "#B00707";
+    case "cerrado":
       return "#B00707";
   }
 }

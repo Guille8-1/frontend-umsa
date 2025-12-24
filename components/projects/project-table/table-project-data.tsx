@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ProjectTypes, Comments, User, ProjectsFullArray } from "@/src/schemas";
 import { getColumns } from "@/components/projects/project-table/columns";
 import { DataTable } from "@/components/projects/project-table/table-data";
@@ -101,16 +101,14 @@ export default function TableProject({
 
   return (
     <div className="mb-5">
-      <Suspense fallback={<div>Loading...</div>}>
-        <DataTable
-          columns={columns}
-          data={projects}
-          selectedProject={selectedIndex}
-          onSelectedProject={(project: ProjectTypes) =>
-            setSelectedIndex(project)
-          }
-        />
-      </Suspense>
+      <DataTable
+        columns={columns}
+        data={projects}
+        selectedProject={selectedIndex}
+        onSelectedProject={(project: ProjectTypes) =>
+          setSelectedIndex(project)
+        }
+      />
       <ProjectModal
         comments={projectComment}
         data={selectedIndex}

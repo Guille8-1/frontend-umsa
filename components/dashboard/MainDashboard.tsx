@@ -1,28 +1,64 @@
 "use client";
 
-import { User } from "@/src/schemas";
 import { TiWarning } from "react-icons/ti";
 import { StatsDashboard } from "./StatsDashboard";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 
-export default function DashboardStart({ user }: { user: User }) {
+type mainDashBoradProps = {
+  chPassword: boolean,
+  isAuth: boolean,
+  token: string,
+  secret: string
+}
+
+export default function DashboardStart({ chPassword, isAuth, token, secret }: mainDashBoradProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+
   setTimeout(() => {
-    if (!user.changedPw) {
+    if (!chPassword) {
       dialogRef.current?.showModal();
     }
   }, 500);
 
+  const tokenCheck = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (isAuth) {
+      tokenCheck.current?.showModal();
+    }
+  }, [])
+
   return (
     <>
+      <section>
+        <dialog className="p-7 rounded-md" ref={tokenCheck}>
+          <section className="flex flex-col gap-5">
+            <div className="flex flex-row items-center gap-2">
+              <TiWarning className="text-[#D32F2F] w-8 h-8" />
+              <h3 className="font-semibold text-sky-800 text-lg">
+                Para continuar, debe restablecer la contraseña
+              </h3>
+            </div>
+
+            <Link
+              href={"auth/login"}
+              autoFocus={false}
+              className="text-center p-2 w-1/2 mx-auto border-2 border-solid border-sky-700 bg-slate-100 rounded-md"
+            >
+              Token Expirado
+            </Link>
+          </section>
+        </dialog>
+      </section>
+
       <section>
         <dialog className="p-7 rounded-md" ref={dialogRef}>
           <section className="flex flex-col gap-5">
             <div className="flex flex-row items-center gap-2">
               <TiWarning className="text-[#D32F2F] w-8 h-8" />
               <h3 className="font-semibold text-sky-800 text-lg">
-                de continuar, debe restablecer la contraseña
+                Para continuar, debe restablecer la contraseña
               </h3>
             </div>
 
@@ -48,7 +84,7 @@ export default function DashboardStart({ user }: { user: User }) {
         </div>
       </div>
       <section>
-        <StatsDashboard />
+        <StatsDashboard token={token} secret={secret} />
       </section>
     </>
   );
