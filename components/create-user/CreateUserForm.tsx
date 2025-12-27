@@ -40,8 +40,14 @@ export default function CreateUserForm() {
   const closeFn = () => {
     setTimeout(() => {
       checkPwRef.current?.close();
-    }, 200);
+    }, 100);
   };
+
+  const openFn = () => {
+    setTimeout(() => {
+      checkPwRef.current?.showModal();
+    }, 100)
+  }
 
   useEffect(() => {
     if (state.errors) {
@@ -145,9 +151,7 @@ export default function CreateUserForm() {
         </div>
         <input
           className="bg-cyan-800 hover:bg-cyan-700 w-full p-3 rounded-lg text-white text-xl font-bold cursor-pointer block"
-          onClick={() => {
-            checkPwRef.current?.showModal();
-          }}
+          onClick={openFn}
           type="button"
           value="Registrar"
         />
@@ -206,9 +210,7 @@ export default function CreateUserForm() {
               className="bg-cyan-800 hover:bg-cyan-700 w-full p-3 rounded-lg text-white text-xl font-bold cursor-pointer block mt-6"
               type="submit"
               value="Registrar"
-              onClick={() => {
-                closeFn();
-              }}
+              onClick={closeFn}
             />
           </section>
         </dialog>

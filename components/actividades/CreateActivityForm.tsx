@@ -62,8 +62,7 @@ export default function ActivityForm({ secret, token }: apiTools) {
         },
       });
       const isValid: boolean = request.ok ? true : false
-
-      if (isValid) {
+      if (!isValid) {
         tokenRef.current?.showModal();
       }
 
@@ -98,7 +97,7 @@ export default function ActivityForm({ secret, token }: apiTools) {
   return (
     <>
       <section>
-        <dialog className="p-7 rounded-md" ref={tokenRef}>
+        <dialog className="p-7 rounded-md w-fit" ref={tokenRef}>
           <section className="flex flex-col gap-5">
             <div className="flex flex-row items-center gap-2">
               <TiWarning className="text-[#D32F2F] w-8 h-8" />
@@ -109,7 +108,7 @@ export default function ActivityForm({ secret, token }: apiTools) {
             <Link
               href={"auth/login"}
               autoFocus={false}
-              className="text-center p-2 w-1/2 mx-auto border-2 border-solid border-sky-700 bg-slate-100 rounded-md"
+              className="font-semibold w-auto text-center p-2 mx-auto border-2 border-solid border-sky-700 bg-slate-100 rounded-md"
             >
               Token Expirado - Log in
             </Link>

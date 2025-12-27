@@ -548,8 +548,8 @@ export function ProjectModal({
                                   <option value="" defaultChecked disabled>
                                     Seleccionar
                                   </option>
-                                  <option value="activo">Activo</option>
-                                  <option value="cerrado">Cerrado</option>
+                                  <option value="Activo">Activo</option>
+                                  <option value="Cerrado">Cerrado</option>
                                 </select>
                               ) : (
                                 <div className="font-extrabold" style={{ color: colorStatus }}>{body.fetched ? body.estado : <Oval width={'20'} height={'20'} color="#075985" />}</div>

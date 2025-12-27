@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RechartsDevtools } from '@recharts/devtools';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Rectangle } from 'recharts'
 import Link from 'next/link';
 import { setValue } from "@/src/Store";
 import { useDispatch } from "react-redux";
@@ -72,37 +72,31 @@ export function StatsDashboard({ token, secret }: startDashboard) {
       name: 'Page A',
       uv: 400,
       pv: 2400,
-      amt: 2400,
     },
     {
       name: 'Page B',
       uv: 300,
       pv: 4567,
-      amt: 2400,
     },
     {
       name: 'Page C',
       uv: 320,
       pv: 1398,
-      amt: 2400,
     },
     {
       name: 'Page D',
-      uv: 200,
-      pv: 9800,
-      amt: 2400,
+      uv: 2,
+      pv: 1,
     },
     {
       name: 'Page E',
       uv: 278,
       pv: 3908,
-      amt: 2400,
     },
     {
       name: 'Page F',
       uv: 189,
       pv: 4800,
-      amt: 2400,
     },
   ];
   const margin = {
@@ -112,28 +106,6 @@ export function StatsDashboard({ token, secret }: startDashboard) {
     bottom: 25,
   }
   const constantClass: string = 'border-gray-300 border-solid border-2 p-2 shadow-xl shadow-outline w-auto';
-
-  // const prjNumbers = [
-  //   {
-  //     title: 'Activos',
-  //     value: 4,
-  //   },
-  //   {
-  //     title: 'Cerrados',
-  //     value: 5,
-  //   },
-  // ];
-
-  // const actNumbers = [
-  //   {
-  //     title: 'Activos',
-  //     value: 3,
-  //   },
-  //   {
-  //     title: 'Cerradas',
-  //     value: 2,
-  //   },
-  // ];
 
   const priorityPrj = [
     {
@@ -226,8 +198,8 @@ export function StatsDashboard({ token, secret }: startDashboard) {
             />
             <YAxis label={{ position: 'insideTopLeft', value: '', angle: -90, dy: 60 }} />
             <CartesianGrid strokeDasharray="3 3" />
-            <Bar dataKey="uv" fill="#075985" stackId='a' label={renderCustomVarLabel} />
-            <Bar dataKey="pv" fill="#82CA9D" stackId='a' label={renderCustomVarLabel} />
+            <Bar dataKey="uv" fill="#075985" activeBar={<Rectangle fill='pink' stroke='blue' />} />
+            <Bar dataKey="pv" fill="#82CA9D" activeBar={<Rectangle fill='gold' stroke='purple' />} />
             <Legend />
             <Tooltip />
             <RechartsDevtools />

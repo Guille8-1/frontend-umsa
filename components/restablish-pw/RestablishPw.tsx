@@ -79,7 +79,7 @@ export default function RestablishingPw() {
         <input
           className="bg-gray-500 hover:bg-gray-400 w-full p-3 rounded-lg text-white text-xl font-bold cursor-pointer block mt-8"
           type="button"
-          value="Revisar Contraseñas"
+          value={password ? "Ocultar Contraseñas" : "Revisar Contraseñas"}
           onClick={revealPassword}
         />
         <input

@@ -13,15 +13,15 @@ export default async function DashboardLayout({
 
   return (
     <>
-      <section className="flex flex-row bg-[#25313D]">
+      <section className="flex flex-row bg-[#25313D] ">
         <InteractiveMenu owner={accountOwner} isAuth={isAuth} />
-        <section className="w-full py-2 my-4 rounded-2xl shadow-lg bg-slate-100">
+        <section className="w-full py-2 my-4 rounded-2xl shadow-lg bg-slate-100 ">
           <section className="flex flex-row gap-5 px-10 py-4 justify-between items-center border-b  border-opacity-15 border-neutral-800">
             <div>breadcrumb</div>
             <div className="flex flex-row gap-5">
-              <h1 className="font-normal mb-4 mt-2">
-                Usuario:{" "}
-                <span className="font-semibold ml-1">{user.name}</span>{" "}
+              <h1 className="mb-4 mt-2">
+                <span className="font-bold">Usuario {" "}</span>
+                <span className="ml-1">{user.name} {user.lastName}</span>{" "}
               </h1>
               <DashboardMenu user={user} />
             </div>

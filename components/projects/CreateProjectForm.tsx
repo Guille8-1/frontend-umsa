@@ -92,7 +92,7 @@ export default function ProjectForm({ url, token }: { url: string, token: string
   return (
     <>
       <section>
-        <dialog className="p-7 rounded-md" ref={tokenRef}>
+        <dialog className="p-7 rounded-md w-auto" ref={tokenRef}>
           <section className="flex flex-col gap-5">
             <div className="flex flex-row items-center gap-2">
               <TiWarning className="text-[#D32F2F] w-8 h-8" />
@@ -104,7 +104,7 @@ export default function ProjectForm({ url, token }: { url: string, token: string
             <Link
               href={"auth/login"}
               autoFocus={false}
-              className="text-center p-2 w-1/2 mx-auto border-2 border-solid border-sky-700 bg-slate-100 rounded-md"
+              className="w-fit text-center p-2 mx-auto border-2 border-solid border-sky-700 bg-slate-100 rounded-md"
             >
               Token Expirado - Log in
             </Link>

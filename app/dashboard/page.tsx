@@ -1,7 +1,6 @@
 import { verifySession } from "@/src/auth/dal";
 import DashboardStart from "@/components/dashboard/MainDashboard";
-import Loading from "./loading";
-import { Suspense } from "react";
+
 import 'dotenv/config';
 
 export default async function DashboardMain() {
@@ -11,14 +10,12 @@ export default async function DashboardMain() {
 
   return (
     <>
-      <Suspense fallback={<Loading />}>
-        <DashboardStart
-          chPassword={chPassword}
-          isAuth={isAuth}
-          token={token}
-          secret={secret}
-        />
-      </Suspense>
+      <DashboardStart
+        chPassword={chPassword}
+        isAuth={isAuth}
+        token={token}
+        secret={secret}
+      />
     </>
   );
 }
