@@ -7,7 +7,6 @@ import 'dotenv/config'
 
 export const verifySession = cache(async () => {
   const token = (await cookies()).get('SERVICES_TOKEN')?.value;
-
   if (!token) {
     redirect('/auth/login');
   }

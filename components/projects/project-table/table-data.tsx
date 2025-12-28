@@ -96,9 +96,9 @@ export function DataTable({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   );
                 })}
@@ -106,7 +106,7 @@ export function DataTable({
             ))}
           </TableHeader>
           <TableBody>
-            {(table.getRowModel().rows ?? 0) ? (
+            {(table.getRowModel().rows.length) ? (
               table.getRowModel().rows.map((row) => {
                 return (
                   <TableRow

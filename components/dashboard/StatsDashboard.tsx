@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+"use client";
+
+import { useEffect, useState } from 'react';
 import { RechartsDevtools } from '@recharts/devtools';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Rectangle } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Rectangle, ResponsiveContainer } from 'recharts'
 import Link from 'next/link';
 import { setValue } from "@/src/Store";
 import { useDispatch } from "react-redux";
+import { requestHandler } from './requests';
 
 type startDashboard = {
   token: string,
@@ -29,105 +32,70 @@ type SourceNumbers = {
   value: number
 }
 
+type DataCount = {
+  name: string,
+  Activo: number,
+  Cerrado: number
+}
+
+type priorityCount = {
+  title: string,
+  value: number
+}
+
 export function StatsDashboard({ token, secret }: startDashboard) {
   const [prjNumbers, setPrjNumbers] = useState<SourceNumbers[]>([])
   const [actNumbers, setActNumbers] = useState<SourceNumbers[]>([])
+  const [dataCount, setDataCount] = useState<DataCount[]>([])
+  const [priority, setPriority] = useState<priorityCount[]>([])
+  const [priorityAct, setPriorityAct] = useState<priorityCount[]>([])
 
   useEffect(() => {
     const controller = new AbortController();
     const gettingPrjNumbers = async () => {
-      const url: string = `${secret}/projects/numbers`
-      const request = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        signal: controller.signal
-      });
-      const prjData = await request.json();
+      const endPoint: string = '/projects/numbers'
+      const prjData = await requestHandler(endPoint, token, secret)
       setPrjNumbers(prjData)
-
       return () => controller.abort();
     };
-
     gettingPrjNumbers();
 
     const gettingActNumbers = async () => {
-      const url: string = `${secret}/actividades/numbers`
-      const request = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        signal: controller.signal
-      });
-      const actData = await request.json();
-      setActNumbers(actData)
-
+      const endPoint: string = '/actividades/numbers';
+      const actData = await requestHandler(endPoint, token, secret);
+      setActNumbers(actData);
       return () => controller.abort();
     };
     gettingActNumbers();
+
+    const gettingDataCount = async () => {
+      const endPoint: string = '/projects/stats'
+      const countData = await requestHandler(endPoint, token, secret)
+      setDataCount(countData);
+      return () => controller.abort();
+    }
+    gettingDataCount();
+
+    const gettingUrgency = async () => {
+      const endPoint: string = '/projects/urgency';
+      const urgencyReq = await requestHandler(endPoint, token, secret);
+      setPriority(urgencyReq);
+      return () => controller.abort();
+    }
+    gettingUrgency();
+
+    const gettingActPriority = async () => {
+      const endPoint: string = '/actividades/priority';
+      const priorityAct = await requestHandler(endPoint, token, secret);
+
+      console.log(priorityAct);
+      setPriorityAct(priorityAct);
+      return () => controller.abort();
+    }
+    gettingActPriority();
   }, [])
 
-  const datas = [
-    {
-      name: 'Page A',
-      uv: 400,
-      pv: 2400,
-    },
-    {
-      name: 'Page B',
-      uv: 300,
-      pv: 4567,
-    },
-    {
-      name: 'Page C',
-      uv: 320,
-      pv: 1398,
-    },
-    {
-      name: 'Page D',
-      uv: 2,
-      pv: 1,
-    },
-    {
-      name: 'Page E',
-      uv: 278,
-      pv: 3908,
-    },
-    {
-      name: 'Page F',
-      uv: 189,
-      pv: 4800,
-    },
-  ];
-  const margin = {
-    top: 20,
-    right: 30,
-    left: 20,
-    bottom: 25,
-  }
   const constantClass: string = 'border-gray-300 border-solid border-2 p-2 shadow-xl shadow-outline w-auto';
-
-  const priorityPrj = [
-    {
-      title: 'Urgente',
-      value: 6
-    },
-    {
-      title: 'Mas Dias Activo',
-      value: 9
-    },
-  ];
-
-  const priorityAct = [
-    {
-      title: 'Urgente',
-      value: 10,
-    },
-    {
-      title: 'Mas Dias Activos',
-      value: 12
-    }
-  ];
 
   const setMenuSelector = useDispatch();
   const dispatchMenu = () => {
@@ -166,7 +134,7 @@ export function StatsDashboard({ token, secret }: startDashboard) {
         <div className={`${constantClass} rounded-lg py-4 px-3 flex flex-col gap-2`}>
           <h2 className='text-lg font-bold'> Prioridad Projectos </h2>
           <div className='flex flex-row gap-2'>
-            {priorityPrj.map((stat) => (
+            {priority.map((stat) => (
               <section key={stat.title} className='flex flex-row gap-2'>
                 <p className='font-bold'>{stat.title}: </p>
                 <Link onClick={dispatchMenu} className='text-blue-700 cursor-pointer hover:underline' href={'/dashboard/projects'}>{stat.value}</Link>
@@ -187,24 +155,30 @@ export function StatsDashboard({ token, secret }: startDashboard) {
           </div>
         </div>
       </section>
-      <section className='flex flex-row gap-12'>
-        <section className={`${constantClass} flex flex-col rounded-lg`}>
-          <p className='text-center'>Titulo primer Cuadro</p>
-          <BarChart width={700} height={400} data={datas} margin={margin} >
+      <section className={`${constantClass} flex flex-col rounded-lg`} style={{ width: "100%" }}>
+        <h2 className='text-center font-semibold'>Grafica Proyectos</h2>
+        <div style={{ width: "100%", overflowX: 'auto' }} >
+          <BarChart
+            width={Math.max(dataCount.length * 80)}
+            height={460}
+            data={dataCount}>
             <XAxis
               dataKey='name'
               tickFormatter={formatAxisTick}
-              label={{ position: 'insideBottomRight', value: 'x titulo', offset: -10 }}
+              angle={-15}
+              textAnchor='end'
+              height={80}
+              interval={0}
             />
-            <YAxis label={{ position: 'insideTopLeft', value: '', angle: -90, dy: 60 }} />
+            <YAxis label={{ position: 'insideTopLeft', angle: -45, dy: 60 }} />
             <CartesianGrid strokeDasharray="3 3" />
-            <Bar dataKey="uv" fill="#075985" activeBar={<Rectangle fill='pink' stroke='blue' />} />
-            <Bar dataKey="pv" fill="#82CA9D" activeBar={<Rectangle fill='gold' stroke='purple' />} />
+            <Bar dataKey="Cerrados" fill="#075985" activeBar={<Rectangle fill='#0284C7' stroke='#075985' />} radius={[10, 10, 0, 0]} />
+            <Bar dataKey="Activos" fill="#82CA9D" activeBar={<Rectangle fill='#4ade80' stroke='#16a34a' />} radius={[10, 10, 0, 0]} />
             <Legend />
             <Tooltip />
             <RechartsDevtools />
           </BarChart>
-        </section>
+        </div>
       </section>
     </>
   )

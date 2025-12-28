@@ -22,12 +22,6 @@ export const InteractiveMenu = ({ owner, isAuth }: menuProps) => {
   const [selected, setSelected] = useState<string>("");
   const navOptions = [
     {
-      title: "Inicio",
-      value: 'dashboard',
-      href: "/dashboard",
-      icon: FaChartLine,
-    },
-    {
       title: "Proyectos",
       value: 'projects',
       href: "/dashboard/projects",
@@ -118,6 +112,27 @@ export const InteractiveMenu = ({ owner, isAuth }: menuProps) => {
                 <section className="text-white font-semibold py-2 hover:text-sky-200 text-lg transition duration-300 flex flex-row gap-3 items-center">
                   <FaUserFriends size="1.2em" />
                   <li>Usuarios</li>
+                </section>
+              </Link>
+            )}
+            {owner && (
+              <Link
+                href={"/dashboard"}
+                onClick={() => {
+                  setSelected("dashboard");
+                }}
+                className={`relative px-3 py-1 overflow-hidden
+                        rounded-md
+                        before:absolute before:inset-0 before:w-0 before:h-full
+                        before:bg-blue-500 before:bg-opacity-30 before:right-0
+                        before:transition-all before:duration-300
+                        hover:before:w-full hover:before:left-0
+                        cursor-pointer
+                        text-white ${selected === "dashboard" ? "bg-sky-800" : ""}`}
+              >
+                <section className="text-white font-semibold py-2 hover:text-sky-200 text-lg transition duration-300 flex flex-row gap-3 items-center">
+                  <FaChartLine size="1.2em" />
+                  <li>Inicio</li>
                 </section>
               </Link>
             )}

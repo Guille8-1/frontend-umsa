@@ -15,7 +15,7 @@ export default async function DashboardLayout({
     <>
       <section className="flex flex-row bg-[#25313D] ">
         <InteractiveMenu owner={accountOwner} isAuth={isAuth} />
-        <section className="w-full py-2 my-4 rounded-2xl shadow-lg bg-slate-100 ">
+        <section className="container w-[1980px] h-auto py-2 my-4 rounded-2xl shadow-lg bg-slate-100 ">
           <section className="flex flex-row gap-5 px-10 py-4 justify-between items-center border-b  border-opacity-15 border-neutral-800">
             <div>breadcrumb</div>
             <div className="flex flex-row gap-5">
@@ -26,7 +26,7 @@ export default async function DashboardLayout({
               <DashboardMenu user={user} />
             </div>
           </section>
-          <section className="mx-8 my-5">{children}</section>
+          <section className="px-4 my-5">{children}</section>
         </section>
       </section>
       <ToastNotification />

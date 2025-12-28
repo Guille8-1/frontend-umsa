@@ -59,7 +59,6 @@ export default function CreateUserForm() {
   useEffect(() => {
     if (state.success) {
       toast.success(state.success);
-      checkPwRef.current?.showModal();
     }
   }, [state]);
   return (
@@ -157,22 +156,23 @@ export default function CreateUserForm() {
         />
 
         <dialog
-          className="rounded-md bg-slate-300 p-5 relative"
+          className={`"rounded-md relative items-center justify-center bg-transparent p-5 "`}
           ref={checkPwRef}
         >
-          <IoClose
-            size={"2rem"}
-            color={"#D32F2F"}
-            className="bg-gray-200 rounded-lg top-0 right-0 absolute cursor-pointer"
-            onClick={() => {
-              checkPwRef.current?.close();
-            }}
-          />
-          <section className="mt-6">
+
+          <section className="mt-6 bg-slate-300 p-7 rounded-lg w-auto">
+            <IoClose
+              size={"2rem"}
+              color={"#D32F2F"}
+              className="bg-gray-200 rounded-lg cursor-pointer absolute top-[30px] right-[10px] z-50"
+              onClick={() => {
+                checkPwRef.current?.close();
+              }}
+            />
             <section className="flex flex-row items-center gap-4">
               <TiWarning className="text-red-500 w-8 h-8" />
               <h3 className="font-bold text-xl">
-                Revise la Contraseña y el Nombre antes de continuar
+                Revise los Datos Antes de continuar
               </h3>
             </section>
             <section className="flex flex-col mt-4 justify-items-center">
