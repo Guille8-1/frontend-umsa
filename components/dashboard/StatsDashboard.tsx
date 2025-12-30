@@ -49,6 +49,7 @@ export function StatsDashboard({ token, secret }: startDashboard) {
   const [dataCount, setDataCount] = useState<DataCount[]>([])
   const [priority, setPriority] = useState<priorityCount[]>([])
   const [priorityAct, setPriorityAct] = useState<priorityCount[]>([])
+  const [actCount, setActCount] = useState<DataCount[]>([])
 
   useEffect(() => {
     const controller = new AbortController();
@@ -76,6 +77,14 @@ export function StatsDashboard({ token, secret }: startDashboard) {
     }
     gettingDataCount();
 
+    const actDataCount = async () => {
+      const endPoint: string = '/actividades/stats'
+      const countActData = await requestHandler(endPoint, token, secret)
+      setActCount(countActData);
+      return () => controller.abort();
+    }
+    actDataCount();
+
     const gettingUrgency = async () => {
       const endPoint: string = '/projects/urgency';
       const urgencyReq = await requestHandler(endPoint, token, secret);
@@ -88,7 +97,6 @@ export function StatsDashboard({ token, secret }: startDashboard) {
       const endPoint: string = '/actividades/priority';
       const priorityAct = await requestHandler(endPoint, token, secret);
 
-      console.log(priorityAct);
       setPriorityAct(priorityAct);
       return () => controller.abort();
     }
@@ -155,31 +163,59 @@ export function StatsDashboard({ token, secret }: startDashboard) {
           </div>
         </div>
       </section>
-      <section className={`${constantClass} flex flex-col rounded-lg`} style={{ width: "100%" }}>
-        <h2 className='text-center font-semibold'>Grafica Proyectos</h2>
-        <div style={{ width: "100%", overflowX: 'auto' }} >
-          <BarChart
-            width={Math.max(dataCount.length * 80)}
-            height={460}
-            data={dataCount}>
-            <XAxis
-              dataKey='name'
-              tickFormatter={formatAxisTick}
-              angle={-15}
-              textAnchor='end'
-              height={80}
-              interval={0}
-            />
-            <YAxis label={{ position: 'insideTopLeft', angle: -45, dy: 60 }} />
-            <CartesianGrid strokeDasharray="3 3" />
-            <Bar dataKey="Cerrados" fill="#075985" activeBar={<Rectangle fill='#0284C7' stroke='#075985' />} radius={[10, 10, 0, 0]} />
-            <Bar dataKey="Activos" fill="#82CA9D" activeBar={<Rectangle fill='#4ade80' stroke='#16a34a' />} radius={[10, 10, 0, 0]} />
-            <Legend />
-            <Tooltip />
-            <RechartsDevtools />
-          </BarChart>
-        </div>
+      <section className='flex flex-col gap-10'>
+        <section className={`${constantClass} flex flex-col rounded-lg`} style={{ width: "100%" }}>
+          <h2 className='text-center font-semibold'>Grafica Proyectos</h2>
+          <div style={{ width: "100%", overflowX: 'auto' }} >
+            <BarChart
+              width={Math.max(dataCount.length * 80)}
+              height={460}
+              data={dataCount}>
+              <XAxis
+                dataKey='name'
+                tickFormatter={formatAxisTick}
+                angle={-15}
+                textAnchor='end'
+                height={80}
+                interval={0}
+              />
+              <YAxis label={{ position: 'insideTopLeft', angle: -45, dy: 60 }} />
+              <CartesianGrid strokeDasharray="3 3" />
+              <Bar dataKey="Cerrados" fill="#075985" activeBar={<Rectangle fill='#0284C7' stroke='#075985' />} radius={[10, 10, 0, 0]} />
+              <Bar dataKey="Activos" fill="#82CA9D" activeBar={<Rectangle fill='#4ade80' stroke='#16a34a' />} radius={[10, 10, 0, 0]} />
+              <Legend />
+              <Tooltip />
+              <RechartsDevtools />
+            </BarChart>
+          </div>
+        </section>
+        <section className={`${constantClass} flex flex-col rounded-lg`} style={{ width: "100%" }}>
+          <h2 className='text-center font-semibold'>Grafica Actividades</h2>
+          <div style={{ width: "100%", overflowX: 'auto' }} >
+            <BarChart
+              width={Math.max(actCount.length * 80)}
+              height={460}
+              data={actCount}>
+              <XAxis
+                dataKey='name'
+                tickFormatter={formatAxisTick}
+                angle={-15}
+                textAnchor='end'
+                height={80}
+                interval={0}
+              />
+              <YAxis label={{ position: 'insideTopLeft', angle: -45, dy: 60 }} />
+              <CartesianGrid strokeDasharray="3 3" />
+              <Bar dataKey="Cerrados" fill="#075985" activeBar={<Rectangle fill='#0284C7' stroke='#075985' />} radius={[10, 10, 0, 0]} />
+              <Bar dataKey="Activos" fill="#82CA9D" activeBar={<Rectangle fill='#4ade80' stroke='#16a34a' />} radius={[10, 10, 0, 0]} />
+              <Legend />
+              <Tooltip />
+              <RechartsDevtools />
+            </BarChart>
+          </div>
+        </section>
       </section>
+
     </>
   )
 }

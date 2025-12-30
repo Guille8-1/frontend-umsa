@@ -7,12 +7,12 @@ import {
 } from "@/src/schemas";
 import { verifySession } from "@/src/auth/dal";
 
-type ActionState = {
+export type ActionState = {
   errors: string[];
   success: string;
 };
 export async function createUser(prevState: ActionState, formData: FormData) {
-  const {token} = await verifySession();
+  const { token } = await verifySession();
   const newUser = {
     nombre: formData.get("nombre"),
     apellido: formData.get("apellido"),
@@ -20,7 +20,7 @@ export async function createUser(prevState: ActionState, formData: FormData) {
     password: formData.get("password"),
     nivel: formData.get("nivelUsuario"),
   };
-  
+
 
   const userValidation = CreateUserSchema.safeParse(newUser);
   if (!userValidation.success) {

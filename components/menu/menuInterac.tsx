@@ -66,7 +66,7 @@ export const InteractiveMenu = ({ owner, isAuth }: menuProps) => {
 
   return (
     <>
-      <section className="w-auto">
+      <section className="relative w-auto">
         <dialog className="p-7 rounded-md w-auto" ref={tokenRef}>
           <section className="flex flex-col gap-5">
             <div className="flex flex-row items-center gap-2">

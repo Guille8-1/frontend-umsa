@@ -13,8 +13,10 @@ export default async function DashboardLayout({
 
   return (
     <>
-      <section className="flex flex-row bg-[#25313D] ">
-        <InteractiveMenu owner={accountOwner} isAuth={isAuth} />
+      <section className="flex flex-row bg-[#25313D]">
+        <section className="relative">
+          <InteractiveMenu owner={accountOwner} isAuth={isAuth} />
+        </section>
         <section className="container w-[1980px] h-auto py-2 my-4 rounded-2xl shadow-lg bg-slate-100 ">
           <section className="flex flex-row gap-5 px-10 py-4 justify-between items-center border-b  border-opacity-15 border-neutral-800">
             <div>breadcrumb</div>
