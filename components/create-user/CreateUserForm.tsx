@@ -154,66 +154,69 @@ export default function CreateUserForm() {
           type="button"
           value="Registrar"
         />
+        <section className="relative w-auto">
+          <dialog
+            className={"rounded-md relative bg-transparent p-5 w-fit"}
+            ref={checkPwRef}
+          >
 
-        <dialog
-          className={`"rounded-md relative items-center justify-center bg-transparent p-5 "`}
-          ref={checkPwRef}
-        >
+            <section className="mt-6 bg-slate-300 p-7 rounded-lg w-auto">
+              <IoClose
+                size={"2rem"}
+                color={"#D32F2F"}
+                className="bg-gray-300 rounded-lg cursor-pointer absolute top-[30px] right-[10px] z-50"
+                onClick={() => {
+                  checkPwRef.current?.close();
+                }}
+              />
+              <section className="flex flex-row items-center gap-4">
+                <TiWarning className="text-red-500 w-8 h-8" />
+                <h3 className="font-bold text-xl">
+                  Revise los Datos Antes de continuar
+                </h3>
+              </section>
+              <section className="flex flex-col mt-4 justify-items-center">
+                <p className="text-lg">
+                  Nombre:
+                  <span className="font-bold text-lg">
+                    {" "}
+                    {reviewValues.nombre}
+                  </span>
+                </p>
+                <p className="text-lg">
+                  Apellido:
+                  <span className="font-bold text-lg">
+                    {" "}
+                    {reviewValues.apellido}
+                  </span>
+                </p>
+                <p className="text-lg">
+                  Email:
+                  <span className="font-bold text-lg"> {reviewValues.email}</span>
+                </p>
+                <p className="text-lg">
+                  Password:
+                  <span className="font-bold text-lg">
+                    {" "}
+                    {reviewValues.password}
+                  </span>
+                </p>
+                <p className="text-lg">
+                  Nivel:
+                  <span className="font-bold text-lg"> {nivel}</span>
+                </p>
+              </section>
+              <input
+                className="bg-cyan-800 hover:bg-cyan-700 w-full p-3 rounded-lg text-white text-xl font-bold cursor-pointer block mt-6"
+                type="submit"
+                value="Registrar"
+                onClick={closeFn}
+              />
+            </section>
+          </dialog>
 
-          <section className="mt-6 bg-slate-300 p-7 rounded-lg w-auto">
-            <IoClose
-              size={"2rem"}
-              color={"#D32F2F"}
-              className="bg-gray-200 rounded-lg cursor-pointer absolute top-[30px] right-[10px] z-50"
-              onClick={() => {
-                checkPwRef.current?.close();
-              }}
-            />
-            <section className="flex flex-row items-center gap-4">
-              <TiWarning className="text-red-500 w-8 h-8" />
-              <h3 className="font-bold text-xl">
-                Revise los Datos Antes de continuar
-              </h3>
-            </section>
-            <section className="flex flex-col mt-4 justify-items-center">
-              <p className="text-lg">
-                Nombre:
-                <span className="font-bold text-lg">
-                  {" "}
-                  {reviewValues.nombre}
-                </span>
-              </p>
-              <p className="text-lg">
-                Apellido:
-                <span className="font-bold text-lg">
-                  {" "}
-                  {reviewValues.apellido}
-                </span>
-              </p>
-              <p className="text-lg">
-                Email:
-                <span className="font-bold text-lg"> {reviewValues.email}</span>
-              </p>
-              <p className="text-lg">
-                Password:
-                <span className="font-bold text-lg">
-                  {" "}
-                  {reviewValues.password}
-                </span>
-              </p>
-              <p className="text-lg">
-                Nivel:
-                <span className="font-bold text-lg"> {nivel}</span>
-              </p>
-            </section>
-            <input
-              className="bg-cyan-800 hover:bg-cyan-700 w-full p-3 rounded-lg text-white text-xl font-bold cursor-pointer block mt-6"
-              type="submit"
-              value="Registrar"
-              onClick={closeFn}
-            />
-          </section>
-        </dialog>
+        </section>
+
       </form>
     </>
   );

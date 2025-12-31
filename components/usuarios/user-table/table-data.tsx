@@ -31,7 +31,7 @@ export function DataUsersTable<TData, TValue>({ columns, data }: UserTableProps<
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState<string>('')
   const [pageIndex, setPageIndex] = useState<number>(0)
-  const [pageSize, setPageSize] = useState<number>(10)
+  const [pageSize, setPageSize] = useState<number>(20)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
 

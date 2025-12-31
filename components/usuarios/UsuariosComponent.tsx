@@ -19,12 +19,12 @@ export default function UsersComponent({ secret, token }: { secret: string, toke
 
   useEffect(() => {
     if (reFetch === 'idle') {
-      const fetchUrl: string = `${secret}/users/active/users`
+      const fetchUrl: string = `${secret}/users/active/users`;
       const userResources = async () => {
         const request = await fetch(fetchUrl, {
           headers: {
             Authorization: `Bearer ${token}`
-          }
+          },
         });
         const activeUsers = await request.json();
         const settingUpUsers = UserArray.parse(activeUsers);

@@ -31,6 +31,11 @@ export const UserSchema = z.object({
   changedPw: z.boolean(),
 });
 
+export const UserEditSchema = z.object({
+  id: z.string(),
+  nivel: z.string().min(1, { message: "Nivel no valido" }),
+})
+
 export const UserTokenSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -46,7 +51,7 @@ export const UserSchemaTable = z.object({
   id: z.number(),
   name: z.string(),
   lastName: z.string(),
-  admin: z.string(),
+  admin: z.boolean(),
   nivel: z.number(),
 });
 export const CreateProjectSchema = z.object({

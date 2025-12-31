@@ -2,19 +2,12 @@ import { ColumnDef, Row } from '@tanstack/react-table'
 import { Button } from "@/components/ui/button"
 import { ArrowUpDown } from 'lucide-react'
 import { type UserTable as UserRow } from '@/src/schemas'
-// import {
-//     DropdownMenu,
-//     DropdownMenuTrigger,
-//     DropdownMenuContent,
-//     DropdownMenuLabel,
-//     DropdownMenuItem,
-//     DropdownMenuSeparator
-// } from "@/components/ui/dropdown-menu";
-// import {FaChevronDown} from "react-icons/fa";
-// import {FaRegTrashCan} from "react-icons/fa6";
 import { UserDialogDeletion } from "@/components/usuarios/user-table-dialog/UserDialog";
+import { UserDialogEdit } from '../user-table-dialog/UserEditDialog';
 import { useState } from "react";
 import { FaRegTrashCan, FaPencil } from "react-icons/fa6";
+import { MdCheck } from 'react-icons/md';
+import { RiCloseLine } from "react-icons/ri";
 
 
 export function filterNames<TData>(
@@ -89,7 +82,6 @@ export const getUserColumns = (setSelectedIndex: (user: UserRow) => void): Colum
               </Button>
             </section>
           </>
-
         )
       }
     },
@@ -109,6 +101,14 @@ export const getUserColumns = (setSelectedIndex: (user: UserRow) => void): Colum
               </Button>
             </section>
           </>
+        )
+      },
+      cell: ({ row }) => {
+        const admin = row.original.admin;
+        return (
+          <section className='flex mx-auto justify-center font-semibold'>
+            {admin ? (<MdCheck color="#16a34a" size={'1.5em'} style={{ fontWeight: "bolder" }} />) : (<RiCloseLine color="crimson" size={'1.5em'} style={{ strokeWidth: '1.2' }} />)}
+          </section>
         )
       }
     },
@@ -170,9 +170,7 @@ export const getUserColumns = (setSelectedIndex: (user: UserRow) => void): Colum
             <section
               className="w-full flex flex-row gap-5 mx-auto justify-center"
             >
-              <button
-                onClick={settingDialog}
-              >
+              <button onClick={settingDialog}>
                 <FaRegTrashCan
                   size='15'
                   color='crimson'
@@ -197,7 +195,10 @@ export const getUserColumns = (setSelectedIndex: (user: UserRow) => void): Colum
             )}
             {
               edit && (
-                <h1>Hello suckers</h1>
+                <UserDialogEdit
+                  user={row.original}
+                  isOpen={edit}
+                />
               )
             }
           </>

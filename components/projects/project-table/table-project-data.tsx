@@ -20,9 +20,9 @@ export default function TableProject({
   token: string;
 }) {
   const dispatch = useDispatch();
-  const [projects, setProjects] = useState<ProjectTypes[]>([]);
-
   const reFetch = useSelector((state: RootState) => state.value.value);
+
+  const [projects, setProjects] = useState<ProjectTypes[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<ProjectTypes | null>(null);
   const [projectComment, setProjectComment] = useState<Comments | null>(null);
   const [loadingSrc, setLoadingSrc] = useState<boolean>(true);

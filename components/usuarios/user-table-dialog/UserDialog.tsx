@@ -15,14 +15,21 @@ import { RiCloseLine } from "react-icons/ri";
 import { deleteUser } from '@/actions/delete-user-action'
 import { useActionState } from "react";
 import { toast } from 'react-toastify';
+import { useDispatch } from "react-redux";
+import { setValue } from "@/src/Store";
+
 export function UserDialogDeletion({ user, isOpen }: { user: UserTable, isOpen: boolean }) {
+
+  const fetchDispatch = useDispatch();
+  const dispatchFunction = () => {
+    fetchDispatch(setValue("changed"));
+  };
 
   const [state, dispatch] = useActionState(deleteUser, {
     errors: [],
     success: ''
   })
-
-
+  const { name, lastName, admin, nivel } = user;
   const [open, setOpen] = useState<boolean>(true);
   const dialogRef = useRef(null);
   const keepValue = useRef(false);
@@ -55,7 +62,7 @@ export function UserDialogDeletion({ user, isOpen }: { user: UserTable, isOpen: 
       toast.success(state.success);
       setTimeout(() => {
         isClosed();
-        window.location.reload();
+        dispatchFunction();
       }, 4000)
     }
   }, [state]);
@@ -90,22 +97,22 @@ export function UserDialogDeletion({ user, isOpen }: { user: UserTable, isOpen: 
                   >
                     <DialogPanel
                       className="w-auto max-w-auto transform overflow-hidden rounded-xl bg-white align-middle shadow-xl transition-all border-sky-800 border-4 p-2">
-                      <section className='mx-auto w-full text-center width-full px-8'>
-                        <h1 className="font-bold text-xl">Elminar Usuario: </h1>
+                      <section className='mx-auto w-full text-center width-full py-8 px-4'>
+                        <h1 className="font-bold text-xl">Eliminar Usuario: </h1>
                         <form action={dispatch}>
                           <div className='flex flex-row gap-5 items-center text-center justify-items-center justify-center mt-5'>
                             <section className='flex flex-row gap-2'>
                               <h2 className='text-black font-semibold'>Nombre:</h2>
-                              <h2>{user.name} {user.lastName}</h2>
+                              <h2>{name} {lastName}</h2>
                               <input name="id" defaultValue={user.id} className="hidden" />
                             </section>
                             <section className='flex flex-row gap-2 items-center'>
                               <h2 className='text-black font-semibold'>Adminsitrador:</h2>
-                              {user.admin === 'si' ? (<MdCheck color="#16a34a" size={'1em'} />) : (<RiCloseLine color="crimson" size={'1em'} />)}
+                              {admin ? (<MdCheck color="#16a34a" size={'1em'} />) : (<RiCloseLine color="crimson" size={'1em'} />)}
                             </section>
                             <section className='flex flex-row gap-2'>
                               <h2 className='text-black font-semibold'>Nivel:</h2>
-                              <h2>{user.nivel}</h2>
+                              <h2>{nivel}</h2>
                             </section>
                           </div>
                           <section
@@ -113,18 +120,18 @@ export function UserDialogDeletion({ user, isOpen }: { user: UserTable, isOpen: 
                             <Button
                               type="submit"
                               variant='link'
-                              className='bg-green-200 text-black'
+                              className='bg-green-200 text-black hover:bg-green-400 hover:no-underline hover:text-white'
                               value="Si"
-                            >Si</Button>
+                            >Si
+                            </Button>
                             <Button
                               variant='destructive'
-                              className="bg-red-200 text-black"
+                              className="bg-red-200 text-black hover:text-white"
                               onClick={isClosed}>
                               No
                             </Button>
                           </section>
                         </form>
-
                       </section>
                       <div className="mx-auto my-0 mt-5 flex justify-end">
                         <ToastNotification />

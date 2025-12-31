@@ -9,7 +9,7 @@ export async function deleteUser(prevState: ActionState, formData: FormData) {
 
   const idUser = formData.get("id");
   const url: string = `${process.env.BACK_URL}/users/delete/${idUser}`
-  console.log(url);
+
   const request = await fetch(url, {
     method: "DELETE",
     headers: {
