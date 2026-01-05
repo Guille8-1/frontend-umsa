@@ -5,8 +5,10 @@ import { RechartsDevtools } from '@recharts/devtools';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Rectangle, ResponsiveContainer } from 'recharts'
 import Link from 'next/link';
 import { setValue } from "@/src/Store";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { requestHandler } from './requests';
+import { RootState } from '@/src/Store/valueSlice';
+import Loader from "../loader/Spinner";
 
 type startDashboard = {
   token: string,
@@ -103,6 +105,21 @@ export function StatsDashboard({ token, secret }: startDashboard) {
     gettingActPriority();
   }, [])
 
+  const navSignal = useSelector((state: RootState) => state.value.eventId)
+  const url = window.location.href;
+  const splitUrl = url.split('/');
+  const validatesUrl = splitUrl[splitUrl.length - 1];
+  const urlLocator = 'dashboard'
+  const [loadChange, setLoadChange] = useState<boolean>(false);
+  useEffect(() => {
+    setTimeout(() => {
+      if (urlLocator != validatesUrl) {
+        setLoadChange(true);
+      }
+    }, 400)
+    console.log('testing')
+  }, [navSignal])
+
   const constantClass: string = 'border-gray-300 border-solid border-2 p-2 shadow-xl shadow-outline w-auto';
 
   const setMenuSelector = useDispatch();
@@ -115,7 +132,7 @@ export function StatsDashboard({ token, secret }: startDashboard) {
 
   return (
     <>
-      <section className={`flex flex-row mb-8 mt-4 gap-6`}>
+      <section className={`flex flex-row mb-8 mt-4 gap-6 ${loadChange ? 'opacity-15' : ''}`}>
         <div className={`${constantClass} rounded-lg py-4 px-3 flex flex-col gap-2 `}>
           <h2 className='text-lg font-bold'>Poryectos </h2>
           <div className='flex flex-row gap-5'>
@@ -215,7 +232,9 @@ export function StatsDashboard({ token, secret }: startDashboard) {
           </div>
         </section>
       </section>
-
+      <section className={`${loadChange ? 'flex' : 'hidden'} relative justify-center items-center mx-auto bottom-[400px]`}>
+        <Loader />
+      </section>
     </>
   )
 }

@@ -9,9 +9,11 @@ import { MdOutlineHomeRepairService } from "react-icons/md";
 import { useEffect, useState, useRef } from "react";
 import { TiWarning } from "react-icons/ti";
 
+//recibir status para el menu
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/src/Store/valueSlice";
 import { resetStatus } from "@/src/Store";
+import { triggerEvent } from "@/src/Store";
 
 type menuProps = {
   owner: boolean,
@@ -19,6 +21,12 @@ type menuProps = {
 };
 
 export const InteractiveMenu = ({ owner, isAuth }: menuProps) => {
+  const fetchLoader = useDispatch();
+  const signalLoader = () => {
+    setTimeout(() => {
+      fetchLoader(triggerEvent());
+    }, 300)
+  }
   const [selected, setSelected] = useState<string>("");
   const navOptions = [
     {
@@ -42,6 +50,7 @@ export const InteractiveMenu = ({ owner, isAuth }: menuProps) => {
   ];
   const dispatch = useDispatch();
   const reNav = useSelector((state: RootState) => state.value.value);
+
   const [k, setK] = useState<number>(0);
 
   useEffect(() => {
@@ -99,6 +108,7 @@ export const InteractiveMenu = ({ owner, isAuth }: menuProps) => {
                 href={"/dashboard/users"}
                 onClick={() => {
                   setSelected("usuarios");
+                  signalLoader();
                 }}
                 className={`relative px-3 py-1 overflow-hidden
                         rounded-md
@@ -120,6 +130,7 @@ export const InteractiveMenu = ({ owner, isAuth }: menuProps) => {
                 href={"/dashboard"}
                 onClick={() => {
                   setSelected("dashboard");
+                  signalLoader();
                 }}
                 className={`relative px-3 py-1 overflow-hidden
                         rounded-md
@@ -141,6 +152,7 @@ export const InteractiveMenu = ({ owner, isAuth }: menuProps) => {
                 href={href}
                 onClick={() => {
                   setSelected(value);
+                  signalLoader();
                 }}
                 key={title}
                 className={`relative px-3 py-1 overflow-hidden

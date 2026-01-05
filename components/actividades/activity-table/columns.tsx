@@ -44,7 +44,7 @@ export const getColumns = (
         );
       },
       cell: ({ row }) => (
-        <section className="w-auto font-bold">
+        <section className="w-auto font-semibold">
           {row.original.asignadosActividad
             ?.map(
               (asignado) => asignado.charAt(0).toUpperCase() + asignado.slice(1),
@@ -72,7 +72,7 @@ export const getColumns = (
       },
       cell: ({ row }) => (
         <div
-          className="text-blue-600 cursor-pointer text-center font-bold"
+          className="text-blue-600 cursor-pointer text-center font-semibold"
           onClick={() => setSelectedIndex(row.original)}
         >
           {row.getValue("tituloActividad")}
@@ -103,7 +103,7 @@ export const getColumns = (
             style={{
               color: colorSet,
             }}
-            className="text-center mx-auto font-bold"
+            className="text-center mx-auto font-semibold"
           >
             {row.getValue("estadoActividad")}
           </section>
@@ -131,7 +131,7 @@ export const getColumns = (
         const colorStg = colorValueProgress(val);
         return (
           <section
-            className={`text-center font-extrabold`}
+            className={`text-center font-bold`}
             style={{
               color: colorStg,
             }}
@@ -158,7 +158,7 @@ export const getColumns = (
         );
       },
       cell: ({ row }) => (
-        <section className="text-center font-bold">
+        <section className="text-center font-semibold">
           {row.original.gestorActividad
             ? row.original.gestorActividad.charAt(0).toUpperCase() +
             row.original.gestorActividad.slice(1)
@@ -190,7 +190,7 @@ export const getColumns = (
             style={{
               color: colorSet,
             }}
-            className={`text-center font-bold`}
+            className={`text-center font-semibold`}
           >
             {row.getValue("prioridadActividad")}
           </section>
@@ -214,7 +214,7 @@ export const getColumns = (
         );
       },
       cell: ({ row }) => (
-        <section className="text-center font-bold">
+        <section className="text-center font-semibold">
           {row.getValue("diasActivoActividad")}
         </section>
       ),
@@ -236,7 +236,7 @@ export const getColumns = (
         );
       },
       cell: ({ row }) => (
-        <section className="text-center font-bold">
+        <section className="text-center font-semibold">
           {row.getValue("oficinaOrigenActividad")}
         </section>
       ),
@@ -267,7 +267,7 @@ export const getColumns = (
         const formattedDate = `${day}`;
 
         return (
-          <section className="text-center font-bold">{formattedDate}</section>
+          <section className="text-center font-semibold">{formattedDate}</section>
         );
       },
     },

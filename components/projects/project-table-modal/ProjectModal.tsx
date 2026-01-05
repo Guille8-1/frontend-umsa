@@ -158,7 +158,7 @@ export function ProjectModal({
     setTimeout(() => {
       update.current?.click();
       fetchDispatch(setValue("changed"));
-    }, 800);
+    }, 400);
   };
 
   const [edit, setEdit] = useState<boolean>(false);

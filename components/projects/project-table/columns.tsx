@@ -61,7 +61,7 @@ export const getColumns = (
       cell: ({ row }) => {
         return (
           <>
-            <section className="font-bold">
+            <section className="font-semibold">
               {row.original.asignados.join(", ")}
             </section>
           </>
@@ -88,7 +88,7 @@ export const getColumns = (
       cell: ({ row }) => {
         return (
           <section
-            className="text-blue-600 cursor-pointer text-center font-bold"
+            className="text-blue-600 cursor-pointer text-center font-semibold"
             onClick={() => setSelectedIndex(row.original)}
             id="update"
           >
@@ -121,7 +121,7 @@ export const getColumns = (
             style={{
               color: colorSet,
             }}
-            className="text-center mx-auto font-bold"
+            className="text-center mx-auto font-semibold"
           >
             {row.getValue("estado")}
           </section>
@@ -153,7 +153,7 @@ export const getColumns = (
         const colorStg = colorValueProgress(valProgress);
         return (
           <section
-            className="text-center font-black"
+            className="text-center font-semibold"
             style={{
               color: colorStg,
             }}
@@ -181,7 +181,7 @@ export const getColumns = (
       },
       cell: ({ row }) => {
         return (
-          <section className="text-center font-bold">{row.getValue("citeNumero")}</section>
+          <section className="text-center font-semibold">{row.getValue("citeNumero")}</section>
         );
       },
     },
@@ -203,7 +203,7 @@ export const getColumns = (
       },
       cell: ({ row }) => {
         return (
-          <section className="text-center font-bold">{row.getValue("rutaCv")}</section>
+          <section className="text-center font-semibold">{row.getValue("rutaCv")}</section>
         );
       },
     },
@@ -225,7 +225,7 @@ export const getColumns = (
       },
       cell: ({ row }) => {
         return (
-          <section className="w-28 text-center font-bold">
+          <section className="w-28 text-center font-semibold">
             {row.original.gestor
               ? row.original.gestor.charAt(0).toUpperCase() +
               row.original.gestor.slice(1)
@@ -252,7 +252,7 @@ export const getColumns = (
       },
       cell: ({ row }) => {
         return (
-          <section className="text-center font-bold">
+          <section className="text-center font-semibold">
             {row.getValue("tipoDocumento")}
           </section>
         );
@@ -282,7 +282,7 @@ export const getColumns = (
             style={{
               color: colorSet,
             }}
-            className="text-center font-bold"
+            className="text-center font-semibold"
           >
             {row.getValue("prioridad")}
           </section>
@@ -307,7 +307,7 @@ export const getColumns = (
       },
       cell: ({ row }) => {
         return (
-          <section className="text-center font-bold">{row.getValue("diasActivo")}</section>
+          <section className="text-center font-semibold">{row.getValue("diasActivo")}</section>
         );
       },
     },
@@ -329,7 +329,7 @@ export const getColumns = (
       },
       cell: ({ row }) => {
         return (
-          <section className="text-center font-bold">
+          <section className="text-center font-semibold">
             {row.getValue("oficinaOrigen")}
           </section>
         );
@@ -361,7 +361,7 @@ export const getColumns = (
         const prjDateDetail = `${date}`;
 
         return (
-          <section className="text-center font-bold">{prjDateDetail}</section>
+          <section className="text-center font-semibold">{prjDateDetail}</section>
         );
       },
     },
